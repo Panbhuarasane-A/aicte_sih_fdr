@@ -8,6 +8,8 @@ import Documents from './pages/Documents.jsx';
 import Assistant from './pages/Assistant.jsx';
 import Calculator from './pages/Calculator.jsx';
 import Audit from './pages/Audit.jsx';
+import MaturityTracker from './pages/MaturityTracker.jsx';
+import ReleaseRequests from './pages/ReleaseRequests.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import OfficerPreview from './pages/OfficerPreview.jsx';
@@ -33,6 +35,8 @@ export default function App() {
         <Route path="assistant" element={<Assistant />} />
         <Route path="calculator" element={<Calculator />} />
         <Route path="audit" element={<Audit />} />
+        <Route path="maturities" element={<MaturityTracker />} />
+        <Route path="release-requests" element={<ReleaseRequests />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
