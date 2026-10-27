@@ -29,6 +29,22 @@ This static deployment does not include the FastAPI backend or PostgreSQL databa
 uploads, and API-backed workflows are unavailable there. Use the local backend instructions
 above for the complete application.
 
+### Free full-stack deployment with Vercel, Render, and Neon
+
+The repository includes [`vercel.json`](./vercel.json) and [`render.yaml`](./render.yaml) for a
+free full-stack deployment:
+
+1. Create a free PostgreSQL database on Neon and copy its pooled connection string.
+2. On Render, create a **Blueprint** from this repository. Set `DATABASE_URL` to the Neon
+   connection string and set `CORS_ORIGINS` to the final Vercel URL.
+3. Wait for the Render service to become healthy and copy its URL, such as
+   `https://aicte-fdr-api.onrender.com`.
+4. On Vercel, import this repository and add `VITE_API_URL` with the Render service URL
+   (without a trailing slash), then deploy.
+
+Render's free service sleeps when idle and may take up to a minute to wake. Never commit
+database URLs, JWT secrets, or provider tokens.
+
 ### Commands
 
 | Command | Purpose |
