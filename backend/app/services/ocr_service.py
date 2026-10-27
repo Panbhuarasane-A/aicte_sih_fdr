@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.models import Document, Extraction, DiscrepancyFlag, Instrument, Institution
 from app.services.rules_engine import format_currency
 
-DISCLAIMER_TEXT = "AI-assisted discrepancy detection, not a determination of authenticity."
+DISCLAIMER_TEXT = "AI-assisted discrepancy detection; it does not establish source or authorship."
 
 def compute_file_sha256(file_path: Path) -> str:
     sha = hashlib.sha256()
@@ -57,8 +57,8 @@ def parse_extracted_fields(text: str, default_bank: Optional[str] = None) -> dic
         "bank": default_bank
     }
 
-    # Amount extraction: e.g. "Rs. 35,00,000", "₹3500000", "INR 35,00,000"
-    amt_match = re.search(r'(?:Rs\.?|INR|₹)\s*([\d,]+(?:\.\d{2})?)', text, re.IGNORECASE)
+    # Amount extraction: PDF text layers may expose the rupee symbol as '?'.
+    amt_match = re.search(r'(?:Rs\.?|INR|₹|\?)\s*([\d,]+(?:\.\d{2})?)', text, re.IGNORECASE)
     if amt_match:
         try:
             cleaned_num = amt_match.group(1).replace(",", "")
@@ -66,14 +66,21 @@ def parse_extracted_fields(text: str, default_bank: Optional[str] = None) -> dic
         except ValueError:
             pass
 
-    # Dates extraction: YYYY-MM-DD or DD/MM/YYYY or DD-MM-YYYY
-    date_matches = re.findall(r'\b(\d{4}-\d{2}-\d{2}|\d{2}[/-]\d{2}[/-]\d{4})\b', text)
+    # Dates extraction: ISO, numeric Indian dates, or dates such as 12-Mar-2026.
+    date_matches = re.findall(
+        r'\b(\d{4}-\d{2}-\d{2}|\d{2}[/-]\d{2}[/-]\d{4}|\d{1,2}[-/][A-Za-z]{3,9}[-/]\d{4})\b',
+        text,
+    )
     normalized_dates = []
     for d in date_matches:
         try:
             if "-" in d and len(d.split("-")[0]) == 4:
                 # already YYYY-MM-DD
                 normalized_dates.append(d)
+            elif re.search(r'[A-Za-z]', d):
+                normalized_dates.append(
+                    datetime.strptime(d.replace("/", "-"), "%d-%b-%Y").date().isoformat()
+                )
             elif "/" in d:
                 parts = d.split("/")
                 normalized_dates.append(f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}")
@@ -90,7 +97,15 @@ def parse_extracted_fields(text: str, default_bank: Optional[str] = None) -> dic
         result["issue_date"] = normalized_dates[0]
 
     # FDR / Certificate Number
-    fdr_match = re.search(r'(?:FDR|Receipt|Account|Deposit)\s*(?:No\.?|Number|#)?\s*[:\-]?\s*([A-Za-z0-9\-_]{6,25})', text, re.IGNORECASE)
+    fdr_match = re.search(
+        r'FDR\s+Number\s*[\r\n:]*\s*([A-Za-z0-9\-_]{6,30})',
+        text,
+        re.IGNORECASE,
+    ) or re.search(
+        r'(?:FDR|Receipt|Account|Deposit)\s*(?:No\.?|Number|#)?\s*[:\-]?\s*([A-Za-z0-9\-_]{6,30})',
+        text,
+        re.IGNORECASE,
+    )
     if fdr_match:
         result["fdr_number"] = fdr_match.group(1)
 
@@ -101,12 +116,45 @@ def parse_extracted_fields(text: str, default_bank: Optional[str] = None) -> dic
             result["bank"] = b
             break
 
+    ifsc_match = re.search(r'\bIFSC\s*:\s*([A-Z]{4}0[A-Z0-9]{6})\b', text, re.IGNORECASE)
+    result["ifsc"] = ifsc_match.group(1).upper() if ifsc_match else None
+
+    institution_id_match = re.search(r'Institution ID \(AICTE\)\s*[\r\n:]*\s*([0-9-]+)', text, re.IGNORECASE)
+    result["institution_aicte_id"] = institution_id_match.group(1) if institution_id_match else None
+
+    pan_match = re.search(r'Account Holder PAN\s*[\r\n:]*\s*([A-Z0-9*]+)', text, re.IGNORECASE)
+    result["pan_masked"] = _mask_identifier(pan_match.group(1)) if pan_match else None
+
+    customer_match = re.search(r'Customer ID\s*[\r\n:]*\s*(?:CIF\s*)?([A-Z0-9*]+)', text, re.IGNORECASE)
+    result["customer_id_masked"] = _mask_identifier(customer_match.group(1)) if customer_match else None
+
+    utr_match = re.search(r'Transaction ID\s*/\s*UTR No\.\s*[\r\n:]*\s*([A-Z0-9-]+)', text, re.IGNORECASE)
+    result["utr"] = utr_match.group(1) if utr_match else None
+
+    account_match = re.search(r'Remitting Account \(A/c No\.\)\s*[\r\n:]*\s*(X+\d{4})', text, re.IGNORECASE)
+    result["account_last4"] = account_match.group(1)[-4:] if account_match else None
+
+    words_match = re.search(r'Deposit Amount\s*[\r\n:]*.*?\((Rupees [^)]+)\)', text, re.IGNORECASE | re.DOTALL)
+    result["amount_in_words"] = words_match.group(1).strip() if words_match else None
+
+    result["is_synthetic_demo"] = "SYNTHETIC DEMONSTRATION DOCUMENT" in text.upper()
+
     # Holder name heuristic
-    holder_match = re.search(r'(?:in favor of|favour of|holder|institution)\s*[:\-]?\s*([A-Za-z0-9\s,\.]{5,60})', text, re.IGNORECASE)
+    holder_match = re.search(
+        r'(?:Depositor\s*/\s*Institution|in favor of|favour of|holder|institution)'
+        r'\s*[:\-]?\s*[\r\n]*([A-Za-z][A-Za-z0-9\s,\.]{5,60}?)(?=\s*(?:\r?\n|Institution ID|$))',
+        text,
+        re.IGNORECASE,
+    )
     if holder_match:
         result["holder"] = holder_match.group(1).strip()
 
     return result
+
+
+def _mask_identifier(value: str) -> str:
+    compact = re.sub(r"\s+", "", value)
+    return f"{'*' * max(len(compact) - 4, 0)}{compact[-4:]}"
 
 def process_document_verification(db: Session, document_id: str) -> Document:
     """
@@ -156,7 +204,17 @@ def process_document_verification(db: Session, document_id: str) -> Document:
         fdr_number=extracted_dict["fdr_number"],
         bank=extracted_dict["bank"],
         raw_text=raw_text[:4000],
-        page_regions={"disclaimer": DISCLAIMER_TEXT}
+        page_regions={
+            "disclaimer": DISCLAIMER_TEXT,
+            "ifsc": extracted_dict.get("ifsc"),
+            "institution_aicte_id": extracted_dict.get("institution_aicte_id"),
+            "pan_masked": extracted_dict.get("pan_masked"),
+            "customer_id_masked": extracted_dict.get("customer_id_masked"),
+            "utr": extracted_dict.get("utr"),
+            "account_last4": extracted_dict.get("account_last4"),
+            "amount_in_words": extracted_dict.get("amount_in_words"),
+            "is_synthetic_demo": extracted_dict.get("is_synthetic_demo", False),
+        }
     )
     db.add(extraction)
     db.flush()

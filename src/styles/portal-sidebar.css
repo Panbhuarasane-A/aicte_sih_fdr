@@ -1,5 +1,9 @@
 .portal-sidebar {
+  position: relative;
+  z-index: var(--z-sidebar);
   width: 240px;
+  max-width: 240px;
+  overflow-x: hidden;
   min-height: calc(100vh - 64px);
   flex: 0 0 240px;
   align-self: stretch;
@@ -20,6 +24,12 @@
   margin-bottom: 8px;
   border-bottom: 1px solid rgba(203, 213, 225, 0.16);
   padding: 13px 9px;
+}
+
+.portal-sidebar-close,
+.portal-sidebar-menu-toggle,
+.portal-sidebar-backdrop {
+  display: none;
 }
 
 .portal-sidebar-brand svg {
@@ -51,7 +61,8 @@
 }
 
 .portal-sidebar-nav,
-.portal-sidebar-main-items {
+.portal-sidebar-main-items,
+.portal-sidebar-group {
   display: flex;
   flex-direction: column;
 }
@@ -63,6 +74,14 @@
 .portal-sidebar-main-items {
   gap: 3px;
   padding: 4px 0;
+}
+
+.portal-sidebar-group-label {
+  margin: 12px 10px 4px;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
 .portal-sidebar-link {
@@ -81,6 +100,7 @@
   font-weight: 500;
   text-align: left;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
@@ -119,32 +139,134 @@
   padding: 12px 0;
 }
 
-@media (max-width: 700px) {
-  .portal-sidebar {
-    width: 100%;
-    min-height: 0;
-    flex: 0 0 auto;
-    align-self: stretch;
-    overflow-x: auto;
-    border-radius: 0;
-    padding: 0 8px;
+@media (max-width: 1023px) {
+  .portal-sidebar-menu-toggle {
+    position: fixed;
+    z-index: calc(var(--z-sidebar) + 1);
+    top: 72px;
+    left: 12px;
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-sm);
+    color: var(--navy-800);
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+    font-size: 20px;
+    cursor: pointer;
   }
 
-  .portal-sidebar-brand,
-  .portal-sidebar-settings {
-    display: none;
+  .portal-sidebar {
+    position: fixed;
+    z-index: calc(var(--z-sidebar) + 2);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(280px, 86vw);
+    max-width: none;
+    min-height: 100vh;
+    overflow-y: auto;
+    border-radius: 0 12px 12px 0;
+    padding: 0 12px;
+    box-shadow: var(--shadow-md);
+    transform: translateX(-110%);
+    transition: transform 180ms ease;
+  }
+
+  .portal-sidebar.is-mobile-open {
+    transform: translateX(0);
+  }
+
+  .portal-sidebar-backdrop {
+    position: fixed;
+    z-index: calc(var(--z-sidebar) + 1);
+    inset: 0;
+    display: block;
+    border: 0;
+    background: rgb(15 23 42 / 42%);
+  }
+
+  .portal-sidebar-brand {
+    display: flex;
+  }
+
+  .portal-sidebar-close {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    margin-left: auto;
+    place-items: center;
+    border: 1px solid var(--slate-500);
+    border-radius: 50%;
+    color: #fff;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
   }
 
   .portal-sidebar-main-items {
-    flex-direction: row;
-    gap: 4px;
-    overflow-x: auto;
-    padding: 6px 0;
+    flex-direction: column;
+    gap: 3px;
+    overflow: visible;
+    padding: 4px 0;
+  }
+
+  .portal-sidebar-group-label {
+    margin-top: 16px;
   }
 
   .portal-sidebar-link {
-    width: max-content;
-    min-height: 36px;
+    width: 100%;
+    min-height: 44px;
     white-space: nowrap;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .portal-sidebar {
+    width: 72px;
+    max-width: 72px;
+    flex-basis: 72px;
+    padding: 0 8px;
+  }
+
+  .portal-sidebar-brand {
+    justify-content: center;
+    padding-right: 4px;
+    padding-left: 4px;
+  }
+
+  .portal-sidebar-brand > div {
+    display: none;
+  }
+
+  .portal-sidebar-group-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .portal-sidebar-link {
+    justify-content: center;
+    padding: 10px;
+  }
+
+  .portal-sidebar-link > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-sidebar {
+    transition: none;
   }
 }

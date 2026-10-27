@@ -30,14 +30,23 @@ export async function apiRequest(endpoint, options = {}) {
   });
 
   if (!response.ok) {
-    let errorDetail = 'API request failed';
+    let errorDetail = `API request failed (${response.status})`;
     try {
       const errJson = await response.json();
       errorDetail = errJson.detail || errJson.message || errorDetail;
     } catch {
-      // response wasn't JSON
+      try {
+        const text = await response.text();
+        if (text && text.trim()) errorDetail = text.slice(0, 200);
+      } catch {
+        // response wasn't readable
+      }
     }
     throw new Error(errorDetail);
+  }
+
+  if (response.status === 204) {
+    return null;
   }
 
   const contentType = response.headers.get('content-type');
@@ -45,6 +54,15 @@ export async function apiRequest(endpoint, options = {}) {
     return response.json();
   }
   return response.text();
+}
+
+export async function downloadApiFile(endpoint) {
+  const token = getAuthToken();
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!response.ok) throw new Error(`Download failed (${response.status})`);
+  return response.blob();
 }
 
 export const api = {
@@ -79,11 +97,13 @@ export const api = {
   // Statements
   importStatement: (formData) => apiRequest('/statements/import', { method: 'POST', body: formData }),
   getStatements: () => apiRequest('/statements'),
+  reverifyClaims: () => apiRequest('/statements/re-verify', { method: 'POST' }),
 
   // Documents
   getDocuments: (institutionId) => apiRequest(institutionId ? `/documents?institution_id=${institutionId}` : '/documents'),
   uploadDocument: (formData) => apiRequest('/documents', { method: 'POST', body: formData }),
   getDocumentExtraction: (id) => apiRequest(`/documents/${id}/extraction`),
+  getDocumentScreening: (id) => apiRequest(`/documents/${id}/screening`),
 
   // Release Workflow
   getReleaseRequests: () => apiRequest('/release-requests'),
@@ -103,8 +123,17 @@ export const api = {
   sendMail: (data) => apiRequest('/mail/send', { method: 'POST', body: JSON.stringify(data) }),
   getMailOutbox: () => apiRequest('/mail/outbox'),
 
+  // Announcements
+  getAnnouncements: () => apiRequest('/announcements'),
+  createAnnouncement: (formData) => apiRequest('/announcements', { method: 'POST', body: formData }),
+  deleteAnnouncement: (announcementId) =>
+    apiRequest(`/announcements/${encodeURIComponent(announcementId)}`, { method: 'DELETE' }),
+  downloadAnnouncementAttachment: (announcementId, attachmentIndex) =>
+    downloadApiFile(`/announcements/${encodeURIComponent(announcementId)}/attachments/${attachmentIndex}`),
+
   // Assistant
   askAssistant: (query) => apiRequest('/assistant/query', { method: 'POST', body: JSON.stringify({ query }) }),
+  exportAssistantResult: (id, format = 'xlsx') => downloadApiFile(`/assistant/results/${encodeURIComponent(id)}/export?format=${format}`),
 
   // Dashboard & Audit
   getDashboardSummary: () => apiRequest('/dashboard/summary'),

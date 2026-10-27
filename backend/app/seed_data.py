@@ -373,7 +373,7 @@ def seed_database(db: Session):
         PaymentClaim(
             id="CLAIM-003",
             institution_id="INST-NE01",
-            utr="CNRB_NOT_FOUND_UTR",
+            utr="CNB202604129983-CLAIM",
             amount=3500000.0,
             date="2026-04-14",
             provenance_tag="INSTITUTION_SUBMITTED",
@@ -385,7 +385,7 @@ def seed_database(db: Session):
         PaymentClaim(
             id="CLAIM-004",
             institution_id="INST-N01",
-            utr="MISSING_UTR_778899",
+            utr="DEL202608101245",
             amount=7000000.0,
             date="2026-08-10",
             provenance_tag="INSTITUTION_SUBMITTED",
@@ -402,7 +402,7 @@ def seed_database(db: Session):
             date="2026-04-10",
             provenance_tag="INSTITUTION_SUBMITTED",
             officer_decision="PENDING",
-            remarks="Duplicate claim test: uses same UTR already submitted by INST-S01.",
+            remarks="Duplicate claim uses the same UTR already submitted by another institution.",
             created_at=datetime(2026, 4, 14, 10, 0, 0, tzinfo=timezone.utc)
         )
     ]

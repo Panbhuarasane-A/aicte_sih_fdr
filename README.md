@@ -10,10 +10,14 @@ Requirements: Node.js and npm versions supported by the installed Vite release.
 
 ```sh
 npm install
+python -m pip install -r backend/requirements.txt
+python backend/run.py
 npm run dev
 ```
 
-Open the local URL printed by Vite. Vite's development server is for local development and is not a production hosting service.
+The backend API must be running on `http://127.0.0.1:8000` before signing in. Open `http://localhost:5173`. Vite's development server is for local development and is not a production hosting service.
+
+In VS Code, run the **Run app** task to start both the backend API and frontend together.
 
 ### Commands
 

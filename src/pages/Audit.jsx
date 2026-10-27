@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePortal } from '../context/PortalContext.jsx';
-import { api } from '../lib/api.js';
+import { auditRepo, institutionsRepo, reportsRepo } from '../data/repositories.js';
 import PortalSidebar from '../components/PortalSidebar.jsx';
+import NotificationButton from '../components/NotificationButton.jsx';
+import DateRangePicker from '../components/DateRangePicker.jsx';
 import '../styles/audit-reports.css';
 
 const dateInputValue = (date) => {
@@ -168,8 +170,8 @@ export default function Audit() {
     setError('');
     try {
       const [auditData, institutionData] = await Promise.all([
-        api.getAuditTrail(1000),
-        api.getInstitutions(),
+        auditRepo.list(1000),
+        institutionsRepo.list(),
       ]);
       setLogs(auditData);
       setInstitutions(institutionData);
@@ -261,7 +263,7 @@ export default function Audit() {
     setVerifying(true);
     setVerification(null);
     try {
-      setVerification(await api.verifyAuditChain());
+      setVerification(await auditRepo.verifyChain());
     } catch (requestError) {
       setError(`Unable to verify the audit hash chain: ${requestError.message}`);
     } finally {
@@ -282,7 +284,7 @@ export default function Audit() {
           log.timestamp, log.actor_name, log.actor_role, log.action, log.entity_type, log.entity_id, log.hash, log.previous_hash,
         ]));
       } else {
-        const content = await api.downloadReport(selectedReportType);
+        const content = await reportsRepo.download(selectedReportType);
         downloadCsvText(filename, content);
       }
       setGeneratedReports((previous) => [{
@@ -324,9 +326,7 @@ export default function Audit() {
       <header className="ar-header">
         <img className="ar-banner" src="/aicte-tricolor-heritage-header.png" alt="AICTE — Technical Education for a Stronger India" />
         <div className="ar-header-actions">
-          <button className="ar-notification" type="button" aria-label="Notifications">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M10 21h4" /></svg><b>3</b>
-          </button>
+          <NotificationButton className="ar-notification" />
           <div className="ar-profile-wrap">
             <button className="ar-profile" type="button" onClick={() => setProfileOpen((open) => !open)} aria-expanded={profileOpen}>
               <span className="ar-avatar">{officerName.split(' ').map((part) => part[0]).join('').slice(0, 2)}</span>
@@ -353,7 +353,7 @@ export default function Audit() {
                   <span className="ar-heading-icon"><Icon name="audit" size={25} /></span>
                   <div><h1>Audit &amp; Reports</h1><p>View system activity, verification history and generate reports for regulatory review.</p></div>
                 </div>
-                <label className="ar-range-control"><Icon name="calendar" size={15} /><input aria-label="Report date range start" type="date" value={range.start} onChange={(event) => setRange((current) => ({ ...current, start: event.target.value }))} /><span>–</span><input aria-label="Report date range end" type="date" value={range.end} onChange={(event) => setRange((current) => ({ ...current, end: event.target.value }))} /></label>
+                <DateRangePicker label="Audit date range" value={{ from: range.start, to: range.end }} onChange={(next) => setRange({ start: next.from, end: next.to })} />
               </div>
 
               {error && <div className="ar-feedback is-error" role="alert">{error}<button type="button" onClick={loadAudit}>Retry</button></div>}

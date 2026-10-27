@@ -191,10 +191,81 @@ class DocumentOut(BaseModel):
     virus_scan_status: str
     doc_type: str
     uploaded_at: datetime
+    # Gate fields
+    gate_state: str = "quarantined"
+    gate_reason: Optional[str] = None
+    file_format: Optional[str] = None
+    screened_at: Optional[datetime] = None
+    cleared_at: Optional[datetime] = None
     extraction: Optional[ExtractionOut] = None
     flags: list[DiscrepancyFlagOut] = []
 
     model_config = {"from_attributes": True}
+
+# ── Gate / origin-check schemas ───────────────────────────────────────────────
+
+class DocumentStatusOut(BaseModel):
+    """Plain-language status for institution users (no detector scores)."""
+    document_id: str
+    file_name: str
+    gate_state: str
+    plain_label: str        # human-readable label
+    next_step: str          # what the institution should do (or wait for)
+    stage_progress: list[str]  # ordered list of stage names with done/pending mark
+    uploaded_at: datetime
+    screened_at: Optional[datetime] = None
+    cleared_at: Optional[datetime] = None
+    can_add_note: bool = True
+    can_resubmit: bool = False
+
+    model_config = {"from_attributes": True}
+
+class GateDecisionOut(BaseModel):
+    id: str
+    document_id: str
+    version: int
+    decided_by: Optional[str] = None
+    decision: str
+    reason: Optional[str] = None
+    policy_version: Optional[str] = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+class SignalOut(BaseModel):
+    name: str
+    status: str    # ok | flag | info | skipped | error
+    weight: float = 1.0
+    evidence: Optional[str] = None
+    provider: Optional[str] = None
+    version: Optional[str] = None
+
+class OriginCheckOut(BaseModel):
+    id: str
+    document_id: str
+    version: int
+    result: str            # no_indicators_found | inconclusive | indicators_present | check_failed
+    risk_level: Optional[str] = None
+    signals: list[SignalOut] = []
+    limitations: Optional[str] = None
+    provider_versions: dict = {}
+    checked_at: datetime
+    reviewed_by: Optional[str] = None
+    reviewed_note: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+class GateReleaseRequest(BaseModel):
+    reason: str
+
+class GateRejectRequest(BaseModel):
+    reason: str
+
+class GateClarificationRequest(BaseModel):
+    message: str
+
+class DocumentNoteRequest(BaseModel):
+    note: str
 
 # Release Workflow Schemas
 class ReleaseRequestCreate(BaseModel):
@@ -281,9 +352,23 @@ class MailOutboxOut(BaseModel):
 
     model_config = {"from_attributes": True}
 
+
+class AnnouncementOut(BaseModel):
+    id: str
+    title: str
+    description: str
+    institution_id: Optional[str] = None
+    created_by: str
+    attachments: list[dict[str, Any]] = Field(default_factory=list)
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 # Assistant Schemas
 class AssistantQueryRequest(BaseModel):
     query: str
+    conversation_id: Optional[str] = None
 
 class AssistantQueryResponse(BaseModel):
     title: str
@@ -291,7 +376,21 @@ class AssistantQueryResponse(BaseModel):
     evidence_route: Optional[str] = None
     access_denied: bool = False
     intent_matched: str
+    intent_code: Optional[str] = None
     suggested_questions: list[str] = []
+    ai_summary: Optional[str] = None
+    gemini_powered: bool = False
+    result_id: Optional[str] = None
+    mode: str = "basic"
+    summary_text: Optional[str] = None
+    interpretation: Optional[dict] = None
+    kpis: list[dict] = []
+    charts: list[dict] = []
+    table: Optional[dict] = None
+    data_as_of: Optional[str] = None
+    export: Optional[dict] = None
+    warnings: list[str] = []
+    presentation: Optional[dict] = None
 
 # Dashboard & Report Schemas
 class DashboardKPIs(BaseModel):

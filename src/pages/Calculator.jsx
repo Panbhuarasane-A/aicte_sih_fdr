@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePortal } from '../context/PortalContext.jsx';
-import { api } from '../lib/api.js';
+import { fdrRepo, institutionsRepo } from '../data/repositories.js';
 import PortalSidebar from '../components/PortalSidebar.jsx';
+import NotificationButton from '../components/NotificationButton.jsx';
+import DateRangePicker from '../components/DateRangePicker.jsx';
 import '../styles/fdr-registry.css';
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
@@ -142,8 +144,8 @@ export default function Calculator() {
     setError('');
     try {
       const [instrumentData, institutionData] = await Promise.all([
-        api.getInstruments(),
-        api.getInstitutions(),
+        fdrRepo.list(),
+        institutionsRepo.list(),
       ]);
       setInstruments(instrumentData);
       setInstitutions(institutionData);
@@ -168,7 +170,7 @@ export default function Calculator() {
     let isMounted = true;
     setCalcLoading(true);
     setCalcError('');
-    api.getDepositCalc(selectedCalcInstitution, paidOverride || undefined)
+    institutionsRepo.getDepositCalc(selectedCalcInstitution, paidOverride || undefined)
       .then((result) => { if (isMounted) setCalc(result); })
       .catch((requestError) => { if (isMounted) setCalcError(`Unable to calculate deposit: ${requestError.message}`); })
       .finally(() => { if (isMounted) setCalcLoading(false); });
@@ -265,7 +267,7 @@ export default function Calculator() {
     setNotice('');
     try {
       if (editingInstrument) {
-        const updated = await api.updateInstrument(editingInstrument.id, {
+        const updated = await fdrRepo.update(editingInstrument.id, {
           reference: form.reference.trim(),
           bank: form.bank.trim(),
           amount: Number(form.amount),
@@ -277,7 +279,7 @@ export default function Calculator() {
         });
         setNotice(`${updated.reference} was updated.`);
       } else {
-        const created = await api.createInstrument({
+        const created = await fdrRepo.create({
           institution_id: form.institution_id,
           type: form.type,
           reference: form.reference.trim(),
@@ -307,9 +309,7 @@ export default function Calculator() {
       <header className="fdr-header">
         <img className="fdr-banner" src="/aicte-tricolor-heritage-header.png" alt="AICTE — Technical Education for a Stronger India" />
         <div className="fdr-header-actions">
-          <button className="fdr-notification" type="button" aria-label="Notifications">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M10 21h4" /></svg><b>3</b>
-          </button>
+          <NotificationButton className="fdr-notification" />
           <div className="fdr-profile-wrap">
             <button className="fdr-profile" type="button" onClick={() => setProfileOpen((open) => !open)} aria-expanded={profileOpen}>
               <span className="fdr-avatar">{officerName.split(' ').map((part) => part[0]).join('').slice(0, 2)}</span>
@@ -333,7 +333,7 @@ export default function Calculator() {
               </div>
             </div>
             <div className="fdr-heading-actions">
-              <label className="fdr-date-range"><Icon name="calendar" size={15} /><input aria-label="Maturity date from" type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} /><span>→</span><input aria-label="Maturity date to" type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} /></label>
+              <DateRangePicker label="Maturity date range" value={{ from: fromDate, to: toDate }} onChange={(next) => { setFromDate(next.from); setToDate(next.to); }} />
               <button type="button" className="fdr-secondary-button" onClick={() => setCalculatorOpen(true)}><Icon name="calculator" size={15} /> Deposit Calculator</button>
               {canManage && <button type="button" className="fdr-primary-button" onClick={openRegister}><Icon name="plus" size={16} /> Register New FDR</button>}
             </div>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../styles/portal-sidebar.css';
 
@@ -12,7 +13,7 @@ const sharedItems = [
     id: 'transactions',
     label: 'Transaction Verification',
     path: '/verify',
-    icon: 'M6 5h8a4 4 0 0 1 4 4v10m-4-3 4 3 4-3M6 19h4a4 4 0 0 0 4-4V5m-4 3-4-3-4 3',
+    icon: 'M4 7h15l-3-3m3 3-3 3M20 17H5l3 3m-3-3 3-3',
   },
   {
     id: 'documents',
@@ -45,6 +46,12 @@ const sharedItems = [
     icon: 'M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z',
   },
   {
+    id: 'announcements',
+    label: 'Announcements',
+    path: '/announcements',
+    icon: 'M4 4h16v12H7l-3 3V4Zm4 5h8m-8 3h5',
+  },
+  {
     id: 'reports',
     label: 'Audit & Reports',
     path: '/audit',
@@ -55,23 +62,29 @@ const sharedItems = [
 const settingsItem = {
   id: 'settings',
   label: 'Settings',
-  path: '/calculator',
+  path: '/settings',
   icon: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0-5v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4',
 };
 
+const navigationGroups = [
+  { label: 'WORK', items: sharedItems.slice(0, 3) },
+  { label: 'INSTRUMENTS', items: sharedItems.slice(3, 6) },
+  { label: 'INTELLIGENCE', items: sharedItems.slice(6) },
+];
+
 const institutionLabels = {
-  overview: 'Dashboard',
-  transactions: 'Transactions',
+  overview: 'Overview',
   documents: 'Upload Documents',
   registry: 'FDR / Deposit Details',
   maturity: 'Maturity Tracker',
   releases: 'Release / Refund Request',
   assistant: 'AI Assistant',
+  announcements: 'Announcements',
   reports: 'Reports',
   settings: 'Profile & Settings',
 };
 
-function SidebarItem({ item, active, onClick, label }) {
+function SidebarItem({ item, active, onClick, onNavigate, label }) {
   const content = (
     <>
       <svg className="portal-sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -86,6 +99,7 @@ function SidebarItem({ item, active, onClick, label }) {
       <button
         type="button"
         className={`portal-sidebar-link${active ? ' is-active' : ''}`}
+        title={label || item.label}
         onClick={onClick}
         aria-current={active ? 'page' : undefined}
       >
@@ -98,6 +112,8 @@ function SidebarItem({ item, active, onClick, label }) {
     <Link
       to={item.path}
       className={`portal-sidebar-link${active ? ' is-active' : ''}`}
+      title={label || item.label}
+      onClick={onNavigate}
       aria-current={active ? 'page' : undefined}
     >
       {content}
@@ -106,10 +122,14 @@ function SidebarItem({ item, active, onClick, label }) {
 }
 
 export default function PortalSidebar({ kind = 'officer', onOverview }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const isInstitution = kind === 'institution';
   const brandSubtitle = isInstitution ? 'Institution Portal' : 'Officer Command Centre';
   const getLabel = (item) => isInstitution ? institutionLabels[item.id] : item.label;
+  const visibleGroups = isInstitution
+    ? [{ label: 'PORTAL', items: [sharedItems[0], sharedItems[2], sharedItems[7]] }]
+    : navigationGroups;
   const isActive = (item) => (
     item.id === 'overview'
       ? location.pathname === '/dashboard'
@@ -117,37 +137,74 @@ export default function PortalSidebar({ kind = 'officer', onOverview }) {
   );
 
   return (
-    <aside className="portal-sidebar">
-      <div className="portal-sidebar-brand">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
-          <path d="m9 12 2 2 4-4" />
-        </svg>
-        <div>
-          <strong>AICTE Portal</strong>
-          <small>{brandSubtitle}</small>
+    <>
+      {!mobileOpen && <button
+        type="button"
+        className="portal-sidebar-menu-toggle"
+        aria-label="Open main navigation"
+        aria-expanded={mobileOpen}
+        onClick={() => setMobileOpen(true)}
+      >
+        <span aria-hidden="true">☰</span>
+      </button>}
+      {mobileOpen && <button
+        type="button"
+        className="portal-sidebar-backdrop"
+        aria-label="Close navigation"
+        onClick={() => setMobileOpen(false)}
+      />}
+      <aside className={`portal-sidebar${mobileOpen ? ' is-mobile-open' : ''}`}>
+        <div className="portal-sidebar-brand">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+          <div>
+            <strong>AICTE Portal</strong>
+            <small>{brandSubtitle}</small>
+          </div>
+          <button
+            type="button"
+            className="portal-sidebar-close"
+            aria-label="Close main navigation"
+            onClick={() => setMobileOpen(false)}
+          >
+            ×
+          </button>
         </div>
-      </div>
-      <nav className="portal-sidebar-nav" aria-label={`${brandSubtitle} navigation`}>
-        <div className="portal-sidebar-main-items">
-          {sharedItems.map((item) => (
-            <SidebarItem
-              key={item.id}
-              item={item}
-              label={getLabel(item)}
-              active={isActive(item)}
-              onClick={item.id === 'overview' ? onOverview : undefined}
-            />
+        <nav className="portal-sidebar-nav" aria-label={`${brandSubtitle} navigation`}>
+          {visibleGroups.map((group) => (
+            <section className="portal-sidebar-group" key={group.label} aria-label={group.label}>
+              <h2 className="portal-sidebar-group-label">{group.label}</h2>
+              <div className="portal-sidebar-main-items">
+                {group.items.map((item) => (
+                  <SidebarItem
+                    key={item.id}
+                    item={item}
+                    label={getLabel(item)}
+                    active={isActive(item)}
+                    onClick={item.id === 'overview' && onOverview
+                      ? () => { onOverview(); setMobileOpen(false); }
+                      : undefined}
+                    onNavigate={() => setMobileOpen(false)}
+                  />
+                ))}
+              </div>
+            </section>
           ))}
-        </div>
-        <div className="portal-sidebar-settings">
-          <SidebarItem
-            item={settingsItem}
-            label={getLabel(settingsItem)}
-            active={false}
-          />
-        </div>
-      </nav>
-    </aside>
+          {!isInstitution && (
+            <div className="portal-sidebar-settings">
+              <h2 className="portal-sidebar-group-label">ADMIN</h2>
+              <SidebarItem
+                item={settingsItem}
+                label={getLabel(settingsItem)}
+                active={false}
+                onNavigate={() => setMobileOpen(false)}
+              />
+            </div>
+          )}
+        </nav>
+      </aside>
+    </>
   );
 }

@@ -2,18 +2,22 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.database import engine, Base, SessionLocal
+from app.database import engine, Base, SessionLocal, upgrade_sqlite_schema
 from app.seed_data import seed_database
 from app.routers import (
     auth, institutions, instruments, statements,
     claims, documents, release, mail, assistant,
-    dashboard, audit, rules
+    dashboard, audit, rules, announcements
 )
+from app.routers import gate as gate_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Ensure tables exist & seed initial reference data
     Base.metadata.create_all(bind=engine)
+    upgrade_sqlite_schema()
+    # Ensure quarantine directory exists
+    settings.QUARANTINE_DIR.mkdir(parents=True, exist_ok=True)
     db = SessionLocal()
     try:
         seed_database(db)
@@ -58,12 +62,14 @@ app.include_router(instruments.router, prefix=settings.API_V1_STR)
 app.include_router(statements.router, prefix=settings.API_V1_STR)
 app.include_router(claims.router, prefix=settings.API_V1_STR)
 app.include_router(documents.router, prefix=settings.API_V1_STR)
+app.include_router(gate_router.router, prefix=settings.API_V1_STR)
 app.include_router(release.router, prefix=settings.API_V1_STR)
 app.include_router(mail.router, prefix=settings.API_V1_STR)
 app.include_router(assistant.router, prefix=settings.API_V1_STR)
 app.include_router(dashboard.router, prefix=settings.API_V1_STR)
 app.include_router(audit.router, prefix=settings.API_V1_STR)
 app.include_router(rules.router, prefix=settings.API_V1_STR)
+app.include_router(announcements.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():

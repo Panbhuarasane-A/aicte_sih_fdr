@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { usePortal } from '../context/PortalContext.jsx';
-import { api } from '../lib/api.js';
+import { assistantRepo, dashboardRepo } from '../data/repositories.js';
 import PortalSidebar from './PortalSidebar.jsx';
+import NotificationButton from './NotificationButton.jsx';
 import '../styles/command-centre.css';
 
 const SAMPLE_QUEUE = [
@@ -89,7 +90,7 @@ export default function OfficerCommandCentre({ isPreview = false }) {
   const [liveStats, setLiveStats] = useState(null);
 
   useEffect(() => {
-    api.getDashboardSummary()
+    dashboardRepo.getSummary()
       .then((data) => setLiveStats(data))
       .catch(() => {
         // Fallback gracefully to reference stats
@@ -102,7 +103,7 @@ export default function OfficerCommandCentre({ isPreview = false }) {
     setQuery(textToAsk);
     setAssistantLoading(true);
     try {
-      const res = await api.askAssistant(textToAsk.trim());
+      const res = await assistantRepo.ask(textToAsk.trim());
       setAssistantResult(res);
     } catch {
       setAssistantResult({
@@ -138,13 +139,7 @@ export default function OfficerCommandCentre({ isPreview = false }) {
         />
 
         <div className="occ-header-right">
-          <button className="occ-notif-btn" type="button" aria-label="Notifications" onClick={() => alert('3 pending priority cases requiring review.')}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
-            <span className="occ-notif-badge">3</span>
-          </button>
+          <NotificationButton className="occ-notif-btn" />
 
           <div className="occ-user-profile" onClick={() => setUserDropdown(!userDropdown)} style={{ position: 'relative' }}>
             <div className="occ-avatar-circle">

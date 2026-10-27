@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePortal } from '../context/PortalContext.jsx';
-import { api } from '../lib/api.js';
+import { claimsRepo, documentsRepo, institutionsRepo, statementRepo } from '../data/repositories.js';
 import PortalSidebar from '../components/PortalSidebar.jsx';
+import NotificationButton from '../components/NotificationButton.jsx';
 import '../styles/officer-verification.css';
 
 function formatAmount(value) {
@@ -48,9 +49,9 @@ export default function OfficerVerification() {
     setError('');
     try {
       const [documentData, claimData, institutionData] = await Promise.all([
-        api.getDocuments(),
-        api.getClaims(),
-        api.getInstitutions(),
+        documentsRepo.list(),
+        claimsRepo.list(),
+        institutionsRepo.list(),
       ]);
       setDocuments(Array.isArray(documentData) ? documentData : []);
       setClaims(Array.isArray(claimData) ? claimData : []);
@@ -105,7 +106,7 @@ export default function OfficerVerification() {
       setUploading('document');
       setError('');
       setNotice('');
-      await api.uploadDocument(formData);
+      await documentsRepo.upload(formData);
       setSupportingFile(null);
       if (supportingInput.current) supportingInput.current.value = '';
       setNotice('Supporting document uploaded. Document extraction and discrepancy checks have completed.');
@@ -130,7 +131,7 @@ export default function OfficerVerification() {
       setUploading('statement');
       setError('');
       setNotice('');
-      const result = await api.importStatement(formData);
+      const result = await statementRepo.import(formData);
       setStatementFile(null);
       if (statementInput.current) statementInput.current.value = '';
       setNotice(`Bank statement imported: ${result.lines_imported ?? 0} lines added, ${result.lines_skipped_as_duplicate ?? 0} duplicates skipped.`);
@@ -168,12 +169,7 @@ export default function OfficerVerification() {
           alt="AICTE — Technical Education for a Stronger India"
         />
         <div className="ov-header-actions">
-          <button className="ov-notification" type="button" aria-label="Notifications">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M10 21h4" />
-            </svg>
-            <b>3</b>
-          </button>
+          <NotificationButton className="ov-notification" />
           <button className="ov-profile" type="button" onClick={() => setUserMenuOpen((isOpen) => !isOpen)} aria-expanded={userMenuOpen}>
             <span className="ov-avatar">{officerName.split(' ').map((part) => part[0]).join('').slice(0, 2)}</span>
             <span><strong>{officerName}</strong><small>{officerRole}</small></span>

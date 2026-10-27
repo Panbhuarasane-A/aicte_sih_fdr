@@ -33,7 +33,7 @@ def verify_payment_claim(db: Session, claim: PaymentClaim) -> MatchResult:
         ]
         score = 0.0
         rule_ids = ["RULE-MATCH-001-DUPLICATE"]
-        suggested_action = "Hold both claims and request formal bank clarification from the institution."
+        suggested_action = "Suggested review step: place both claims under review and request formal bank clarification."
 
         return _save_or_update_match(db, claim.id, classification, evidence_lines, score, rule_ids, suggested_action)
 
@@ -57,7 +57,7 @@ def verify_payment_claim(db: Session, claim: PaymentClaim) -> MatchResult:
 
             score = 1.0
             rule_ids = ["RULE-MATCH-002-EXACT"]
-            suggested_action = "Consistent with bank statement; forward for Scrutiny Officer verification."
+            suggested_action = "Suggested review step: forward the consistent record for Scrutiny Officer review."
 
             return _save_or_update_match(db, claim.id, classification, evidence_lines, score, rule_ids, suggested_action)
         else:
@@ -69,7 +69,7 @@ def verify_payment_claim(db: Session, claim: PaymentClaim) -> MatchResult:
             ]
             score = 0.5
             rule_ids = ["RULE-MATCH-003-AMOUNT-MISMATCH"]
-            suggested_action = "Do not accept; request revised proof and bank reconciliation certificate."
+            suggested_action = "Suggested review step: request revised proof and a bank reconciliation certificate."
 
             return _save_or_update_match(db, claim.id, classification, evidence_lines, score, rule_ids, suggested_action)
 
@@ -108,7 +108,7 @@ def verify_payment_claim(db: Session, claim: PaymentClaim) -> MatchResult:
             )
         score = 0.4
         rule_ids = ["RULE-MATCH-004-POSSIBLE"]
-        suggested_action = "Scrutiny Officer to confirm the correct UTR / transaction ID with the remitting bank."
+        suggested_action = "Suggested review step: ask the Scrutiny Officer to confirm the transaction ID with the remitting bank."
 
         return _save_or_update_match(db, claim.id, classification, evidence_lines, score, rule_ids, suggested_action)
 
@@ -120,7 +120,7 @@ def verify_payment_claim(db: Session, claim: PaymentClaim) -> MatchResult:
     ]
     score = 0.0
     rule_ids = ["RULE-MATCH-005-MISSING"]
-    suggested_action = "Request fresh stamped bank payment challan, RTGS counterfoil or revised statement."
+    suggested_action = "Suggested review step: request a fresh stamped payment challan, counterfoil or revised statement."
 
     return _save_or_update_match(db, claim.id, classification, evidence_lines, score, rule_ids, suggested_action)
 

@@ -1,0 +1,69 @@
+:root {
+  --navy-900: #0a192f;
+  --navy-800: #0f2b48;
+  --navy-700: #173653;
+  --blue-600: #1d4ed8;
+  --blue-50: #eff6ff;
+  --green-600: #0b6b1e;
+  --green-50: #eaf6ec;
+  --amber-600: #8a4b00;
+  --amber-50: #fff4e5;
+  --orange-600: #c2410c;
+  --orange-50: #ffedd5;
+  --red-600: #a31d14;
+  --red-50: #fdecea;
+  --purple-600: #7e22ce;
+  --purple-50: #f3e8ff;
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #1a1a1a;
+  --saffron-500: #ff9933;
+  --india-green-600: #138808;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 4px rgb(15 43 72 / 8%);
+  --shadow-md: 0 8px 24px rgb(15 43 72 / 12%);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --z-content: 1;
+  --z-header: 10;
+  --z-sidebar: 20;
+  --z-overlay: 30;
+  --z-dialog: 40;
+  --focus-ring: 0 0 0 2px #fff, 0 0 0 4px var(--blue-600);
+
+  --primary: #1d0a69;
+  --primary-alt: #003366;
+  --saffron: var(--saffron-500);
+  --green: var(--india-green-600);
+  --white: #fff;
+  --surface: #f4f6f8;
+  --text: var(--slate-900);
+  --muted: #666;
+  --line: #d5dae1;
+  --ok: var(--green-600);
+  --warn: var(--amber-600);
+  --bad: var(--red-600);
+  --s1: var(--space-2);
+  --s2: var(--space-4);
+  --s3: var(--space-6);
+  --s4: var(--space-8);
+  --s6: 48px;
+  --s8: 64px;
+  --radius: var(--radius-sm);
+}

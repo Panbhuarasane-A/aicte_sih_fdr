@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePortal } from '../context/PortalContext.jsx';
-import { api } from '../lib/api.js';
+import { claimsRepo, institutionsRepo } from '../data/repositories.js';
+import { MATCH_STATUSES, getStatusLabel } from '../data/statuses.js';
+import { formatDate, formatINR, formatPercent } from '../lib/formatters.js';
 import PortalSidebar from '../components/PortalSidebar.jsx';
+import { StatusBadge } from '../components/ui.jsx';
+import DateRangePicker from '../components/DateRangePicker.jsx';
+import NotificationButton from '../components/NotificationButton.jsx';
 import '../styles/transaction-verification.css';
 
 const PAGE_SIZE = 10;
@@ -19,15 +24,6 @@ const BANK_NAMES = [
   ['SYNDICATE', 'Syndicate Bank'],
 ];
 
-const MATCH_LABELS = {
-  EXACT_MATCH: 'Exact Match',
-  POSSIBLE_MATCH: 'Probable Match',
-  AMOUNT_MISMATCH: 'Amount Mismatch',
-  MISSING_TRANSACTION: 'No Matching Record',
-  DUPLICATE_CLAIM: 'Duplicate Suspected',
-  PENDING: 'Pending Review',
-};
-
 function parseDate(value) {
   if (!value) return null;
   const [year, month, day] = value.split('-').map(Number);
@@ -37,15 +33,11 @@ function parseDate(value) {
 }
 
 function displayDate(value, withTime = false) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value || '—';
-  return date.toLocaleString('en-IN', withTime
-    ? { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }
-    : { day: '2-digit', month: 'short', year: 'numeric' });
+  return formatDate(value, withTime ? { hour: '2-digit', minute: '2-digit' } : undefined);
 }
 
 function formatAmount(value) {
-  return `₹${Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+  return formatINR(value, { maximumFractionDigits: 2 });
 }
 
 function bankFromClaim(claim) {
@@ -58,17 +50,7 @@ function bankFromClaim(claim) {
 }
 
 function matchLabel(claim) {
-  return MATCH_LABELS[claim.match_result?.classification] || MATCH_LABELS.PENDING;
-}
-
-function matchClass(claim) {
-  const classification = claim.match_result?.classification || 'PENDING';
-  if (classification === 'EXACT_MATCH') return 'is-exact';
-  if (classification === 'POSSIBLE_MATCH') return 'is-probable';
-  if (classification === 'AMOUNT_MISMATCH') return 'is-mismatch';
-  if (classification === 'DUPLICATE_CLAIM') return 'is-duplicate';
-  if (classification === 'MISSING_TRANSACTION') return 'is-missing';
-  return 'is-pending';
+  return getStatusLabel(MATCH_STATUSES, claim.match_result?.classification);
 }
 
 function getBankAmount(claim) {
@@ -178,8 +160,8 @@ export default function Verify() {
     setError('');
     try {
       const [claimData, institutionData] = await Promise.all([
-        api.getClaims(),
-        api.getInstitutions(),
+        claimsRepo.list(),
+        institutionsRepo.list(),
       ]);
       setClaims(claimData);
       setInstitutions(institutionData);
@@ -253,7 +235,7 @@ export default function Verify() {
     setError('');
     setNotice('');
     try {
-      await api.verifyClaim(claim.id);
+      await claimsRepo.rerunMatch(claim.id);
       setNotice(`Transaction ${claim.utr} was checked against the available bank statement records.`);
       await loadClaims();
     } catch (requestError) {
@@ -269,7 +251,7 @@ export default function Verify() {
     setError('');
     setNotice('');
     try {
-      await api.officerVerifyClaim(selectedClaim.id, 'Verified against the available bank statement evidence.');
+      await claimsRepo.verify(selectedClaim.id, 'Reviewed against the available bank statement evidence.');
       setNotice(`Transaction ${selectedClaim.utr} marked as officer verified.`);
       await loadClaims();
     } catch (requestError) {
@@ -286,7 +268,7 @@ export default function Verify() {
     setError('');
     setNotice('');
     try {
-      await api.clarifyClaim(selectedClaim.id, clarificationNotes.trim());
+      await claimsRepo.requestClarification(selectedClaim.id, clarificationNotes.trim());
       setNotice(`Clarification requested for transaction ${selectedClaim.utr}.`);
       setClarificationOpen(false);
       await loadClaims();
@@ -317,7 +299,7 @@ export default function Verify() {
       <header className="tv-header">
         <img className="tv-banner" src="/aicte-tricolor-heritage-header.png" alt="AICTE — Technical Education for a Stronger India" />
         <div className="tv-header-actions">
-          <button className="tv-notification" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M10 21h4" /></svg><b>3</b></button>
+          <NotificationButton className="tv-notification" />
           <div className="tv-profile-wrap">
             <button className="tv-profile" type="button" onClick={() => setProfileOpen((open) => !open)} aria-expanded={profileOpen}>
               <span className="tv-avatar">{officerName.split(' ').map((part) => part[0]).join('').slice(0, 2)}</span>
@@ -338,7 +320,7 @@ export default function Verify() {
               <div><h1>Transaction Verification</h1><p>Verify financial transactions submitted by institutions against available bank statements and financial records.</p></div>
             </div>
             <div className="tv-heading-actions">
-              <label className="tv-date-range"><Icon name="calendar" size={15} /><input aria-label="Transaction date from" type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} /><span>→</span><input aria-label="Transaction date to" type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} /></label>
+              <DateRangePicker label="Transaction date range" value={{ from: fromDate, to: toDate }} onChange={(next) => { setFromDate(next.from); setToDate(next.to); }} />
               <button type="button" className="tv-primary-button" onClick={() => runVerification()} disabled={!selectedClaim || Boolean(actionLoading)}><Icon name="refresh" size={15} /> {actionLoading ? 'Verifying…' : 'Verify Transaction'}</button>
               <button type="button" className="tv-secondary-button" onClick={() => exportClaims(filteredClaims)} disabled={!filteredClaims.length}><Icon name="download" size={15} /> Export Report</button>
             </div>
@@ -349,8 +331,8 @@ export default function Verify() {
 
           <section className="tv-metrics" aria-label="Transaction summary">
             <MetricCard icon="file" tone="blue" label="Total Transactions" value={loading ? '—' : claims.length.toLocaleString('en-IN')} note="Submitted claims in your scope" onClick={() => selectStatus('')} />
-            <MetricCard icon="check" tone="green" label="Exact Matches" value={loading ? '—' : exactCount.toLocaleString('en-IN')} note={`${claims.length ? (exactCount / claims.length * 100).toFixed(1) : '0.0'}% of transactions`} onClick={() => selectStatus('EXACT_MATCH')} />
-            <MetricCard icon="alert" tone="amber" label="Flagged / Issues" value={loading ? '—' : flaggedCount.toLocaleString('en-IN')} note={`${claims.length ? (flaggedCount / claims.length * 100).toFixed(1) : '0.0'}% need attention`} onClick={() => selectStatus('FLAGGED')} />
+            <MetricCard icon="check" tone="green" label="Exact Matches" value={loading ? '—' : exactCount.toLocaleString('en-IN')} note={`${formatPercent(claims.length ? exactCount / claims.length * 100 : 0)} of transactions`} onClick={() => selectStatus('EXACT_MATCH')} />
+            <MetricCard icon="alert" tone="amber" label="Flagged / Issues" value={loading ? '—' : flaggedCount.toLocaleString('en-IN')} note={`${formatPercent(claims.length ? flaggedCount / claims.length * 100 : 0)} need attention`} onClick={() => selectStatus('FLAGGED')} />
             <MetricCard icon="clock" tone="red" label="Pending Review" value={loading ? '—' : pendingCount.toLocaleString('en-IN')} note="Awaiting officer decision" onClick={() => selectStatus('PENDING_REVIEW')} />
           </section>
 
@@ -379,7 +361,7 @@ export default function Verify() {
                             <td>{formatAmount(claim.amount)}</td>
                             <td>{displayDate(claim.date)}</td>
                             <td>{bankFromClaim(claim) || '—'}</td>
-                            <td><span className={`tv-status ${matchClass(claim)}`}>{matchLabel(claim)}</span></td>
+                            <td><StatusBadge statusMap={MATCH_STATUSES} code={claim.match_result?.classification} /></td>
                             <td><button className="tv-view-button" type="button" aria-label={`View transaction ${claim.utr}`} onClick={(event) => { event.stopPropagation(); setSelectedId(claim.id); setDetailDismissed(false); setDetailTab('overview'); }}><Icon name="eye" size={15} /></button></td>
                           </tr>
                         ))}
@@ -404,7 +386,7 @@ export default function Verify() {
                 <>
                   <div className="tv-detail-heading"><h2>Transaction Details</h2><button type="button" onClick={() => setDetailDismissed(true)} aria-label="Close transaction details"><Icon name="close" size={16} /></button></div>
                   <div className="tv-detail-body">
-                    <div className="tv-detail-status-row"><span className={`tv-status ${matchClass(selectedClaim)}`}>{matchLabel(selectedClaim)}</span><span className={`tv-priority ${selectedClaim.match_result?.classification === 'AMOUNT_MISMATCH' || selectedClaim.match_result?.classification === 'DUPLICATE_CLAIM' ? 'is-high' : ''}`}>{selectedClaim.match_result?.classification === 'AMOUNT_MISMATCH' || selectedClaim.match_result?.classification === 'DUPLICATE_CLAIM' ? 'High Priority' : 'For Review'}</span></div>
+                    <div className="tv-detail-status-row"><StatusBadge statusMap={MATCH_STATUSES} code={selectedClaim.match_result?.classification} /><span className={`tv-priority ${selectedClaim.match_result?.classification === 'AMOUNT_MISMATCH' || selectedClaim.match_result?.classification === 'DUPLICATE_CLAIM' ? 'is-high' : ''}`}>{selectedClaim.match_result?.classification === 'AMOUNT_MISMATCH' || selectedClaim.match_result?.classification === 'DUPLICATE_CLAIM' ? 'High Priority' : 'For Review'}</span></div>
                     <div className="tv-detail-reference"><strong>{selectedClaim.utr}</strong><button type="button" onClick={copyUtr} aria-label="Copy transaction reference"><Icon name="copy" size={14} /></button></div>
                     <p className="tv-detail-institution">{selectedClaim.institution_name || selectedClaim.institution_id}<span>· {selectedClaim.id}</span></p>
                     <div className="tv-detail-tabs" role="tablist" aria-label="Transaction information">

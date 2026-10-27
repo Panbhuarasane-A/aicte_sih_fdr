@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { usePortal } from '../context/PortalContext.jsx';
-import { api } from '../lib/api.js';
+import { claimsRepo, dashboardRepo } from '../data/repositories.js';
 import PortalSidebar from './PortalSidebar.jsx';
+import NotificationButton from './NotificationButton.jsx';
 import '../styles/institution-portal.css';
 
 const SAMPLE_TRANSACTIONS = [
@@ -63,9 +64,6 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [query, setQuery] = useState('');
-  const [assistantResult, setAssistantResult] = useState(null);
-  const [assistantLoading, setAssistantLoading] = useState(false);
   const [selectedTx, setSelectedTx] = useState(null);
   const [userDropdown, setUserDropdown] = useState(false);
 
@@ -75,32 +73,13 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
 
   useEffect(() => {
     Promise.all([
-      api.getDashboardSummary().catch(() => null),
-      api.getClaims().catch(() => [])
+      dashboardRepo.getSummary().catch(() => null),
+      claimsRepo.list().catch(() => [])
     ]).then(([kpiData, claimsData]) => {
       if (kpiData) setLiveKpis(kpiData);
       if (claimsData && claimsData.length) setLiveClaims(claimsData);
     });
   }, []);
-
-  const handleAskAssistant = async (text) => {
-    const qText = text || query;
-    if (!qText.trim()) return;
-    setQuery(qText);
-    setAssistantLoading(true);
-    try {
-      const res = await api.askAssistant(qText.trim());
-      setAssistantResult(res);
-    } catch {
-      setAssistantResult({
-        title: 'Assistant Result',
-        rows: ['All institutional records in your profile are compliant.'],
-        intent_matched: 'QUERY_RESULTS'
-      });
-    } finally {
-      setAssistantLoading(false);
-    }
-  };
 
   const institutionName = user?.institution_name || user?.name || 'ABC Engineering College';
   const institutionCode = user?.institution_id || 'INST-2026-004';
@@ -116,13 +95,7 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
         />
 
         <div className="ipc-header-right">
-          <button className="ipc-notif-btn" type="button" aria-label="Notifications" onClick={() => alert('1 transaction requires your attention (Amount mismatch).')}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
-            <span className="ipc-notif-badge">3</span>
-          </button>
+          <NotificationButton className="ipc-notif-btn" />
 
           <div className="ipc-user-profile" onClick={() => setUserDropdown(!userDropdown)} style={{ position: 'relative' }}>
             <div className="ipc-avatar-circle">
@@ -162,6 +135,24 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
         </div>
       </header>
 
+      <nav className="ipc-top-nav" aria-label="Institution Portal navigation">
+        {[
+          ['/dashboard', 'Overview', 'M3 11.5 12 4l9 7.5M5 10v10h14V10M9 20v-6h6v6'],
+          ['/documents', 'Upload Documents', 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6m-8 4v6m-3-3 3 3 3-3'],
+        ].map(([path, label, icon]) => (
+          <NavLink
+            key={`${path}-${label}`}
+            to={path}
+            className={({ isActive }) => `ipc-top-nav-link${isActive ? ' is-active' : ''}`}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d={icon} />
+            </svg>
+            {label}
+          </NavLink>
+        ))}
+      </nav>
+
       {/* BODY WITH SIDEBAR AND MAIN CONTENT */}
       <div className="ipc-body-layout">
         {/* SIDEBAR */}
@@ -196,9 +187,9 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                   </svg>
                 </div>
                 <div>
-                  <p className="ipc-metric-label">Total Deposits & FDRs</p>
-                  <p className="ipc-metric-number">6</p>
-                  <p className="ipc-metric-sub">Active instruments</p>
+                  <p className="ipc-metric-label">Total Deposits / FDRs</p>
+                  <p className="ipc-metric-number">₹ 2,48,75,000</p>
+                  <p className="ipc-metric-sub">↑ 12% from last quarter</p>
                 </div>
               </div>
               <span className="ipc-metric-arrow">→</span>
@@ -214,9 +205,9 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                 </div>
                 <div>
                   <p className="ipc-metric-label">Verified Transactions</p>
-                  <p className="ipc-metric-number">4</p>
+                  <p className="ipc-metric-number">24</p>
                   <div className="ipc-progress-mini">
-                    <span className="ipc-metric-sub">Out of 5 claims</span>
+                    <span className="ipc-metric-sub">↑ 8% from last month</span>
                     <div className="ipc-progress-mini-bar">
                       <div className="ipc-progress-mini-fill" style={{ width: '80%' }} />
                     </div>
@@ -237,9 +228,9 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                   </svg>
                 </div>
                 <div>
-                  <p className="ipc-metric-label">Pending Verification</p>
-                  <p className="ipc-metric-number">1</p>
-                  <p className="ipc-metric-sub">Requires your attention</p>
+                  <p className="ipc-metric-label">Issues to Resolve</p>
+                  <p className="ipc-metric-number">5</p>
+                  <p className="ipc-metric-sub">↓ 40% from last month</p>
                 </div>
               </div>
               <span className="ipc-metric-arrow">→</span>
@@ -257,8 +248,8 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                 </div>
                 <div>
                   <p className="ipc-metric-label">Upcoming Maturities</p>
-                  <p className="ipc-metric-number">2</p>
-                  <p className="ipc-metric-sub">Within 30 days</p>
+                  <p className="ipc-metric-number">3</p>
+                  <p className="ipc-metric-sub">Next 30 days</p>
                 </div>
               </div>
               <span className="ipc-metric-arrow">→</span>
@@ -271,8 +262,8 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
             <div className="ipc-panel">
               <div className="ipc-panel-header">
                 <div>
-                  <h2 className="ipc-panel-title">Recent Transactions</h2>
-                  <small style={{ color: '#64748b' }}>Track the status of your submitted payments and deposits.</small>
+                  <h2 className="ipc-panel-title">Verification requiring attention</h2>
+                  <small style={{ color: '#64748b' }}>Review deposit, FDR and release cases that need action.</small>
                 </div>
                 <Link to="/verify" className="ipc-view-all">View All →</Link>
               </div>
@@ -281,10 +272,10 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                 <table className="ipc-tx-table">
                   <thead>
                     <tr>
-                      <th>Date</th>
-                      <th>UTR / Ref No.</th>
+                      <th>Case / Institution</th>
+                      <th>Type</th>
+                      <th>Issue</th>
                       <th>Amount</th>
-                      <th>Bank</th>
                       <th>Status</th>
                       <th>Action</th>
                     </tr>
@@ -292,23 +283,18 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                   <tbody>
                     {SAMPLE_TRANSACTIONS.map((tx, idx) => (
                       <tr key={idx}>
-                        <td>{tx.date}</td>
-                        <td style={{ fontWeight: 600 }}>{tx.utr}</td>
+                        <td><strong>{institutionName}</strong><br /><small>{tx.utr}</small></td>
+                        <td>Security Deposit</td>
+                        <td>{tx.status === 'Amount Mismatch' ? 'Amount mismatch' : 'Verification pending'}</td>
                         <td style={{ fontWeight: 700 }}>{tx.amount}</td>
                         <td>
-                          <div className="ipc-bank-cell">
-                            <span className={`ipc-bank-dot ${tx.bankClass}`}>●</span>
-                            <span>{tx.bank}</span>
-                          </div>
-                        </td>
-                        <td>
                           <span className={`ipc-status-pill ${tx.statusClass}`}>
-                            {tx.status}
+                            {tx.status === 'Matched' ? 'Needs review' : tx.status}
                           </span>
                         </td>
                         <td>
                           <span className="ipc-view-link" onClick={() => setSelectedTx(tx)}>
-                            View →
+                            Review →
                           </span>
                         </td>
                       </tr>
@@ -392,60 +378,115 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                 </div>
 
                 <div className="ipc-qa-list">
+                  <div className="ipc-qa-item" onClick={() => navigate('/verify')}>
+                    <div className="ipc-qa-left">
+                      <div className="ipc-qa-icon is-green">₹</div>
+                      <div>
+                        <span className="ipc-qa-title">Submit Payment</span>
+                        <span className="ipc-qa-sub">Record and verify payments</span>
+                      </div>
+                    </div>
+                    <span className="ipc-qa-time">→</span>
+                  </div>
+
                   <div className="ipc-qa-item" onClick={() => navigate('/documents')}>
                     <div className="ipc-qa-left">
                       <div className="ipc-qa-icon is-blue">📤</div>
                       <div>
-                        <span className="ipc-qa-title">Upload Document</span>
-                        <span className="ipc-qa-sub">FDR / Receipt / Statement</span>
+                        <span className="ipc-qa-title">Upload FDR</span>
+                        <span className="ipc-qa-sub">Add new fixed deposit</span>
                       </div>
                     </div>
-                    <span className="ipc-qa-time">2 hours ago</span>
+                    <span className="ipc-qa-time">→</span>
                   </div>
 
-                  <div className="ipc-qa-item" onClick={() => navigate('/verify')}>
+                  <div className="ipc-qa-item" onClick={() => navigate('/maturities')}>
                     <div className="ipc-qa-left">
-                      <div className="ipc-qa-icon is-purple">⚠️</div>
+                      <div className="ipc-qa-icon is-purple">📅</div>
                       <div>
-                        <span className="ipc-qa-title">Amount mismatch detected</span>
-                        <span className="ipc-qa-sub">UTR-456789012345 | ₹ 3,50,000</span>
+                        <span className="ipc-qa-title">Track Maturity</span>
+                        <span className="ipc-qa-sub">View upcoming renewals</span>
                       </div>
                     </div>
-                    <span className="ipc-qa-time">5 hours ago</span>
+                    <span className="ipc-qa-time">→</span>
                   </div>
 
-                  <div className="ipc-qa-item" onClick={() => navigate('/documents')}>
+                  <div className="ipc-qa-item" onClick={() => navigate('/release-requests')}>
                     <div className="ipc-qa-left">
-                      <div className="ipc-qa-icon is-green">📄</div>
+                      <div className="ipc-qa-icon is-orange">📄</div>
                       <div>
-                        <span className="ipc-qa-title">Missing document</span>
-                        <span className="ipc-qa-sub">Release request #RR-2025-008</span>
+                        <span className="ipc-qa-title">Request Release</span>
+                        <span className="ipc-qa-sub">Initiate release of funds</span>
                       </div>
                     </div>
-                    <span className="ipc-qa-time">1 day ago</span>
-                  </div>
-
-                  <div className="ipc-qa-item" onClick={() => alert('Official intimation from AICTE: Please ensure all renewal certificates are stamped before 30 April.')}>
-                    <div className="ipc-qa-left">
-                      <div className="ipc-qa-icon is-red">🔔</div>
-                      <div>
-                        <span className="ipc-qa-title">New message from AICTE</span>
-                        <span className="ipc-qa-sub">Regarding your verification query</span>
-                      </div>
-                    </div>
-                    <span className="ipc-qa-time">1 day ago</span>
+                    <span className="ipc-qa-time">→</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* COLUMN 3: AI ASSISTANT & NEED HELP CARD */}
+            {/* COLUMN 3: COMPLIANCE SUMMARY & NEED HELP CARD */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              <div className="ipc-assistant-box">
+              <div className="ipc-compliance-card">
+                <div className="ipc-compliance-header">
+                  <div>
+                    <h3 className="ipc-compliance-title">Compliance &amp; deadlines</h3>
+                    <p className="ipc-compliance-sub">Keep your deposit portfolio ready for review.</p>
+                  </div>
+                  <span className="ipc-compliance-shield" aria-hidden="true">✓</span>
+                </div>
+
+                <div className="ipc-compliance-score">
+                  <div>
+                    <span className="ipc-compliance-label">Record accuracy</span>
+                    <strong>{liveKpis?.record_accuracy_pct ?? 96.4}%</strong>
+                  </div>
+                  <div className="ipc-compliance-bar" aria-hidden="true">
+                    <span style={{ width: `${liveKpis?.record_accuracy_pct ?? 96.4}%` }} />
+                  </div>
+                </div>
+
+                <div className="ipc-compliance-list">
+                  <button type="button" className="ipc-compliance-item" onClick={() => navigate('/verify')}>
+                    <span className="ipc-compliance-item-icon is-orange">!</span>
+                    <span>
+                      <strong>{liveKpis?.flagged_claims ?? 2} verification issues</strong>
+                      <small>Review flagged transactions</small>
+                    </span>
+                    <span className="ipc-compliance-arrow">›</span>
+                  </button>
+                  <button type="button" className="ipc-compliance-item" onClick={() => navigate('/release-requests')}>
+                    <span className="ipc-compliance-item-icon is-blue">↗</span>
+                    <span>
+                      <strong>{liveKpis?.release_requests_pending ?? 1} release requests pending</strong>
+                      <small>Check request status</small>
+                    </span>
+                    <span className="ipc-compliance-arrow">›</span>
+                  </button>
+                  <button type="button" className="ipc-compliance-item" onClick={() => navigate('/maturities')}>
+                    <span className="ipc-compliance-item-icon is-purple">⌛</span>
+                    <span>
+                      <strong>{liveKpis?.expiring_soon_30_days ?? 1} FDRs mature soon</strong>
+                      <small>Plan renewal within 30 days</small>
+                    </span>
+                    <span className="ipc-compliance-arrow">›</span>
+                  </button>
+                </div>
+
+                <Link to="/documents" className="ipc-compliance-action">Open compliance checklist <span>→</span></Link>
+              </div>
+              {false && <div className="ipc-assistant-box">
                 <div className="ipc-asst-header">
-                  <div className="ipc-asst-robot-icon">🤖</div>
+                  <div className="ipc-asst-robot-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 8.5A2.5 2.5 0 0 1 8.5 6h7A2.5 2.5 0 0 1 18 8.5v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 6 13.5v-5Z" />
+                      <path d="M9 6V4m6 2V4M4 11h2m12 0h2M9.5 11.5h.01m5 0h.01M10 14h4" />
+                      <path d="m19 4 .45 1.05L20.5 5.5l-1.05.45L19 7l-.45-1.05-1.05-.45 1.05-.45L19 4Z" />
+                    </svg>
+                  </div>
                   <div>
                     <h3 className="ipc-asst-title">AI Assistant</h3>
+                    <span className="ipc-asst-status"><i /> Institution support</span>
                   </div>
                 </div>
                 <p className="ipc-asst-sub">Ask in natural language. Get instant insights from your financial records.</p>
@@ -482,12 +523,12 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                 </form>
 
                 {assistantResult && (
-                  <div style={{ marginTop: '10px', padding: '8px 12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', fontSize: '11px', color: '#166534' }}>
+                  <div className="ipc-asst-result">
                     <strong>{assistantResult.title}:</strong>
-                    <div style={{ marginTop: '4px' }}>{assistantResult.rows.join(' · ')}</div>
+                    <div>{assistantResult.rows.join(' · ')}</div>
                   </div>
                 )}
-              </div>
+              </div>}
 
               <div className="ipc-help-card">
                 <img

@@ -10,10 +10,13 @@ import Calculator from './pages/Calculator.jsx';
 import Audit from './pages/Audit.jsx';
 import MaturityTracker from './pages/MaturityTracker.jsx';
 import ReleaseRequests from './pages/ReleaseRequests.jsx';
+import NotificationCenter from './pages/NotificationCenter.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import OfficerPreview from './pages/OfficerPreview.jsx';
 import InstitutionPreview from './pages/InstitutionPreview.jsx';
+import InstitutionSettings from './pages/InstitutionSettings.jsx';
+import InstitutionAnnouncements from './pages/InstitutionAnnouncements.jsx';
 
 function ProtectedLayout() {
   const { user } = usePortal();
@@ -37,6 +40,10 @@ export default function App() {
         <Route path="audit" element={<Audit />} />
         <Route path="maturities" element={<MaturityTracker />} />
         <Route path="release-requests" element={<ReleaseRequests />} />
+        <Route path="notifications" element={<NotificationCenter />} />
+        <Route path="announcements" element={<InstitutionAnnouncements />} />
+        <Route path="institution-announcements" element={<InstitutionAnnouncements />} />
+        <Route path="settings" element={<InstitutionSettings />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

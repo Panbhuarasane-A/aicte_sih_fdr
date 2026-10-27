@@ -14,7 +14,10 @@ export default function Layout() {
     || location.pathname === '/audit'
     || location.pathname === '/verify'
     || location.pathname === '/release-requests'
-    || (user?.kind === 'officer' && ['/documents', '/assistant'].includes(location.pathname))
+    || location.pathname === '/notifications'
+    || location.pathname === '/announcements'
+    || location.pathname === '/institution-announcements'
+    || ['/documents', '/assistant'].includes(location.pathname)
   ) {
     return <Outlet />;
   }

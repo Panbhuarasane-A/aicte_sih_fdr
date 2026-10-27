@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { api } from '../lib/api.js';
+import { fdrRepo, institutionsRepo, releaseRepo } from '../data/repositories.js';
 import { usePortal } from '../context/PortalContext.jsx';
 import PortalSidebar from '../components/PortalSidebar.jsx';
+import NotificationButton from '../components/NotificationButton.jsx';
+import DateRangePicker from '../components/DateRangePicker.jsx';
 import '../styles/release-requests.css';
 
 const PAGE_SIZE = 10;
@@ -106,9 +108,9 @@ export default function ReleaseRequests() {
     setError('');
     try {
       const [requestData, instrumentData, institutionData] = await Promise.all([
-        api.getReleaseRequests(),
-        api.getInstruments(),
-        api.getInstitutions(),
+        releaseRepo.list(),
+        fdrRepo.list(),
+        institutionsRepo.list(),
       ]);
       setRequests(requestData);
       setInstruments(instrumentData);
@@ -190,7 +192,7 @@ export default function ReleaseRequests() {
     setError('');
     setNotice('');
     try {
-      const created = await api.submitReleaseRequest({
+      const created = await releaseRepo.submit({
         institution_id: newInstrument.institution_id,
         instrument_id: newInstrument.id,
         reason: newReason.trim(),
@@ -216,9 +218,9 @@ export default function ReleaseRequests() {
     setError('');
     setNotice('');
     try {
-      if (actionType === 'recommend') await api.recommendRelease(selectedRequest.id, actionNotes);
-      else if (actionType === 'authorise') await api.authoriseRelease(selectedRequest.id, speakingOrder, actionNotes);
-      else await api.rejectRelease(selectedRequest.id, actionNotes);
+      if (actionType === 'recommend') await releaseRepo.recommend(selectedRequest.id, actionNotes);
+      else if (actionType === 'authorise') await releaseRepo.authorize(selectedRequest.id, speakingOrder, actionNotes);
+      else await releaseRepo.reject(selectedRequest.id, actionNotes);
       setActionOpen(false);
       setNotice(`Request ${selectedRequest.id} updated successfully.`);
       await loadRequests();
@@ -245,7 +247,7 @@ export default function ReleaseRequests() {
       <header className="rr-header">
         <img className="rr-banner" src="/aicte-tricolor-heritage-header.png" alt="AICTE — Technical Education for a Stronger India" />
         <div className="rr-header-actions">
-          <button className="rr-notification" type="button" aria-label="Notifications"><span>♧</span><b>3</b></button>
+          <NotificationButton className="rr-notification" />
           <div className="rr-profile-wrap">
             <button className="rr-profile" type="button" onClick={() => setProfileOpen((open) => !open)} aria-expanded={profileOpen}>
               <span className="rr-avatar">{officerName.split(' ').map((part) => part[0]).join('').slice(0, 2)}</span>
@@ -265,7 +267,7 @@ export default function ReleaseRequests() {
               <div><h1>Release / Refund Requests</h1><p>Track and manage institution requests for release of Security Deposit / FDR, with approval workflow and status updates.</p></div>
             </div>
             <div className="rr-heading-actions">
-              <label className="rr-date-range"><Icon name="calendar" size={15} /><input aria-label="Request date from" type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} /><span>→</span><input aria-label="Request date to" type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} /></label>
+              <DateRangePicker label="Request date range" value={{ from: fromDate, to: toDate }} onChange={(next) => { setFromDate(next.from); setToDate(next.to); }} />
               <button className="rr-primary" type="button" onClick={() => setNewRequestOpen(true)} disabled={!availableInstruments.length}><Icon name="plus" size={16} /> New Request</button>
             </div>
           </div>

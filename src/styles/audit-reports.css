@@ -158,11 +158,6 @@
   min-height: calc(100vh - 64px);
 }
 
-.ar-layout > .portal-sidebar {
-  width: 180px;
-  flex-basis: 180px;
-}
-
 .ar-main {
   width: min(100%, 1560px);
   min-width: 0;
@@ -892,11 +887,6 @@
 }
 
 @media (max-width: 1100px) {
-  .ar-layout > .portal-sidebar {
-    width: 168px;
-    flex-basis: 168px;
-  }
-
   .ar-overview-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
@@ -989,11 +979,6 @@
 
   .ar-layout {
     flex-direction: column;
-  }
-
-  .ar-layout > .portal-sidebar {
-    width: 100%;
-    flex-basis: auto;
   }
 
   .ar-main {

@@ -127,9 +127,8 @@ Deposit under Chapter II Approval Process Handbook.
 
     # View extraction & flags
     res_ext = client.get(f"/api/documents/{doc['id']}/extraction", headers={"Authorization": f"Bearer {token_inst}"})
-    assert res_ext.status_code == 200
-    ext_data = res_ext.json()
-    assert ext_data["disclaimer"] == "AI-assisted discrepancy detection, not a determination of authenticity."
+    assert res_ext.status_code == 409
+    assert res_ext.json()["detail"]["code"] == "GATE_NOT_CLEARED"
 
 def test_dashboard_summary_and_reports():
     token_head = get_auth_token("officer.head")

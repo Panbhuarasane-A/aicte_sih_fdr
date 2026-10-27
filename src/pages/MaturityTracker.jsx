@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { usePortal } from '../context/PortalContext.jsx';
-import { api } from '../lib/api.js';
+import { fdrRepo, institutionsRepo } from '../data/repositories.js';
 import PortalSidebar from '../components/PortalSidebar.jsx';
+import NotificationButton from '../components/NotificationButton.jsx';
+import DateRangePicker from '../components/DateRangePicker.jsx';
 import '../styles/maturity-tracker.css';
 
 const today = new Date();
@@ -146,7 +148,7 @@ export default function MaturityTracker() {
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
-    Promise.all([api.getInstruments(), api.getInstitutions()])
+    Promise.all([fdrRepo.list(), institutionsRepo.list()])
       .then(([instrumentData, institutionData]) => {
         if (!isMounted) return;
         setInstruments(instrumentData);
@@ -221,10 +223,7 @@ export default function MaturityTracker() {
       <header className="mt-header">
         <img className="mt-banner" src="/aicte-tricolor-heritage-header.png" alt="AICTE — Technical Education for a Stronger India" />
         <div className="mt-header-actions">
-          <button className="mt-notification" type="button" aria-label="Notifications">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M10 21h4" /></svg>
-            <b>3</b>
-          </button>
+          <NotificationButton className="mt-notification" />
           <div className="mt-profile-wrap">
             <button className="mt-profile" type="button" onClick={() => setProfileOpen((open) => !open)} aria-expanded={profileOpen}>
               <span className="mt-avatar">{officerName.split(' ').map((part) => part[0]).join('').slice(0, 2)}</span>
@@ -288,12 +287,7 @@ export default function MaturityTracker() {
                   <option value="">All Status</option>
                   {statusOptions.map((status) => <option key={status} value={status}>{status}</option>)}
                 </select>
-                <label className="mt-date-filter">
-                  <Icon name="calendar" size={15} />
-                  <input aria-label="Maturity date from" type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
-                  <span>to</span>
-                  <input aria-label="Maturity date to" type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
-                </label>
+                <DateRangePicker label="Maturity date range" value={{ from: startDate, to: endDate }} onChange={(next) => { setStartDate(next.from); setEndDate(next.to); }} />
               </section>
 
               {selectedDate && (

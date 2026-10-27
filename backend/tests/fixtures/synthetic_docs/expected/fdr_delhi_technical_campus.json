@@ -1,0 +1,20 @@
+{
+  "doc_type": "FDR",
+  "fdr_number": "FDR-00691-26-004721",
+  "institution_name": "Delhi Technical Campus",
+  "institution_aicte_id": "1-9876543210",
+  "bank_name": "State Bank of India",
+  "bank_ifsc": "SBIN0000691",
+  "deposit_amount_paise": 100000000,
+  "issue_date": "2026-03-12",
+  "maturity_date": "2027-03-12",
+  "tenure_days": 365,
+  "interest_rate_pct": 6.8,
+  "maturity_value_paise": 106971800,
+  "utr_normalized": "SBIN526298431507",
+  "payment_mode": "RTGS",
+  "remitting_account_last4": "4521",
+  "lien_holder": "All India Council for Technical Education (AICTE)",
+  "purpose": "Security Deposit - Approval Process 2026-27",
+  "is_synthetic_demo": true
+}

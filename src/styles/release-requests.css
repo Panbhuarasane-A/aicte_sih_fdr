@@ -111,6 +111,15 @@
   white-space: nowrap;
 }
 
+.rr-profile > span:nth-child(2) {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.rr-profile > span:last-child {
+  flex: 0 0 auto;
+}
+
 .rr-profile strong { font-size: 11px; }
 .rr-profile small { margin-top: 2px; color: #70829a; font-size: 9px; }
 
@@ -134,11 +143,6 @@
 .rr-layout {
   display: flex;
   min-height: calc(100vh - 64px);
-}
-
-.rr-layout > .portal-sidebar {
-  width: 210px;
-  flex-basis: 210px;
 }
 
 .rr-main {
@@ -360,7 +364,6 @@
 .rr-modal-actions { justify-content: flex-end; gap: 8px; margin-top: 4px; }
 
 @media (max-width: 1250px) {
-  .rr-layout > .portal-sidebar { width: 180px; flex-basis: 180px; }
   .rr-filters { flex-wrap: wrap; }
   .rr-search { flex-basis: 250px; }
   .rr-filters select { flex: 1 1 130px; }
@@ -380,7 +383,6 @@
   .rr-profile { max-width: 190px; }
   .rr-profile small { max-width: 125px; }
   .rr-layout { display: block; }
-  .rr-layout > .portal-sidebar { width: 100%; min-height: 0; }
   .rr-main { padding: 15px 10px 24px; }
   .rr-heading { align-items: flex-start; }
   .rr-heading h1 { font-size: 17px; }

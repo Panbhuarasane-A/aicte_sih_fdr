@@ -2,11 +2,31 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Run app",
+			"label": "Run frontend",
 			"type": "shell",
-			"command": "npm run dev -- --host 0.0.0.0 --port 4173",
+			"command": "npm run dev -- --host 0.0.0.0 --port 5173",
 			"isBackground": true,
 			"problemMatcher": []
+		},
+		{
+			"label": "Run backend API",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"$env:SECRET_KEY = [guid]::NewGuid().ToString(); python backend/run.py"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run app",
+			"dependsOn": [
+				"Run backend API",
+				"Run frontend"
+			],
+			"dependsOrder": "parallel"
 		}
 	]
 }

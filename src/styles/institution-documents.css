@@ -1,0 +1,1147 @@
+/* ==========================================================================
+   AICTE AI Document Verification - Institution Portal Styles
+   ========================================================================== */
+
+.idv-page {
+  min-height: 100vh;
+  background-color: #f3f6fa;
+  font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TOP HEADER */
+.idv-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 12px;
+  position: relative;
+  min-height: 64px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.idv-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.idv-emblem {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
+.idv-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.idv-brand-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f2b48;
+  letter-spacing: -0.2px;
+}
+
+.idv-brand-divider {
+  color: #cbd5e1;
+  font-weight: 300;
+  font-size: 18px;
+}
+
+.idv-brand-portal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+.idv-brand-sub {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.idv-header-banner-bg {
+  position: relative;
+  inset: auto;
+  flex: 1 1 auto;
+  width: auto;
+  height: 48px;
+  min-width: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;
+  opacity: 1;
+}
+
+.idv-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.idv-notif-btn {
+  position: relative;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #475569;
+  transition: all 0.2s;
+}
+
+.idv-notif-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.idv-notif-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 2px solid #ffffff;
+}
+
+.idv-profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 30px;
+  padding: 4px 14px 4px 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+/* Keep the upload-page header consistent with the compact institution dashboard header. */
+.idv-header .idv-brand,
+.idv-header .idv-signout-btn {
+  display: none;
+}
+
+.idv-profile-pill:hover {
+  background: #f1f5f9;
+}
+
+.idv-profile-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0f2b48;
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+}
+
+.idv-profile-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1e293b;
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.idv-signout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.idv-signout-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* HORIZONTAL NAVIGATION BAR */
+.idv-nav {
+  background: #0b2546;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  border-bottom: 2px solid #1e3a8a;
+}
+
+.idv-nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.15s;
+  border-bottom: 3px solid transparent;
+}
+
+.idv-nav-item:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.idv-nav-item.is-active {
+  color: #ffffff;
+  background: #1769ed;
+  border-radius: 6px 6px 0 0;
+  border-bottom-color: #60a5fa;
+  box-shadow: 0 -2px 10px rgba(23, 105, 237, 0.3);
+}
+
+.idv-nav-more {
+  display: none;
+  position: relative;
+}
+
+.idv-nav-more-button {
+  border: 0;
+  background: transparent;
+  color: #cbd5e1;
+  padding: 12px 14px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.idv-nav-more-menu {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  z-index: 20;
+  min-width: 180px;
+  padding: 6px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(15, 43, 72, 0.16);
+}
+
+.idv-nav-more-menu a {
+  display: block;
+  padding: 8px 10px;
+  color: #0f2b48;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.idv-nav-more-menu a:hover {
+  background: #eff6ff;
+}
+
+/* MAIN CONTENT LAYOUT */
+.idv-main {
+  width: min(100%, 1480px);
+  margin: 0 auto;
+  padding: 24px 28px 48px;
+  flex: 1 0 auto;
+}
+
+/* BREADCRUMB */
+.idv-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #64748b;
+  margin-bottom: 18px;
+}
+
+.idv-breadcrumb a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.idv-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.idv-breadcrumb-sep {
+  color: #94a3b8;
+}
+
+/* PAGE HEADER TITLE */
+.idv-page-title-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.idv-title-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.idv-page-title-text h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f2b48;
+  line-height: 1.25;
+}
+
+.idv-page-title-text p {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  color: #64748b;
+}
+
+/* TWO-COLUMN GRID */
+.idv-grid {
+  display: grid;
+  grid-template-columns: 1.62fr 1fr;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* LEFT COLUMN CARDS */
+.idv-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* UPLOAD CARD */
+.idv-upload-card {
+  background: #ffffff;
+  border: 2px dashed #93c5fd;
+  border-radius: 18px;
+  padding: 38px 32px 30px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.03);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.idv-form-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.idv-form-fields label {
+  color: #0f2b48;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.idv-form-fields select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font: inherit;
+}
+
+.idv-field-error {
+  display: block;
+  margin-top: 6px;
+  color: #b91c1c;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.idv-file-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto 14px;
+  max-width: 560px;
+  padding: 9px 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  color: #0f2b48;
+  font-size: 12px;
+  text-align: left;
+}
+
+.idv-file-chip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.idv-file-chip small {
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.idv-file-chip button {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: #1d4ed8;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.idv-ownership-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: #334155;
+  font-size: 12.5px;
+}
+
+.idv-upload-submit {
+  margin: 0 auto 18px;
+}
+
+.idv-synthetic-pill {
+  margin-left: auto;
+  padding: 6px 10px;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.idv-upload-card.is-dragging {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+.idv-upload-aicte-btn {
+  display: block;
+  margin-top: 6px;
+  border: 0;
+  padding: 0;
+  color: #1769aa;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.idv-upload-aicte-btn:hover {
+  color: #0f3f70;
+  text-decoration: underline;
+  transform: scale(1.008);
+}
+
+.idv-illustration-wrap {
+  margin-bottom: 16px;
+  display: inline-flex;
+  position: relative;
+}
+
+.idv-pdf-graphic {
+  position: relative;
+  width: 72px;
+  height: 84px;
+  background: #f8fafc;
+  border: 2px solid #cbd5e1;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.idv-pdf-corner {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
+  background: #ffffff;
+  border-bottom: 2px solid #cbd5e1;
+  border-left: 2px solid #cbd5e1;
+  border-radius: 0 0 0 6px;
+}
+
+.idv-pdf-badge {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.idv-cloud-circle {
+  position: absolute;
+  bottom: -10px;
+  right: -12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #1769ed;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 10px rgba(23, 105, 237, 0.4);
+  border: 2px solid #ffffff;
+}
+
+.idv-upload-heading {
+  font-size: 18.5px;
+  font-weight: 700;
+  color: #0f2b48;
+  margin: 0 0 6px;
+}
+
+.idv-upload-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 24px;
+}
+
+.idv-upload-btn-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.idv-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #0f3675;
+  color: #ffffff;
+  border: 0;
+  border-radius: 9px;
+  padding: 12px 26px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(15, 54, 117, 0.25);
+  transition: all 0.2s;
+}
+
+.idv-btn-primary:hover:not(:disabled) {
+  background: #092654;
+  transform: translateY(-1px);
+}
+
+.idv-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.idv-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  color: #0f3675;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  padding: 12px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.idv-btn-secondary:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.idv-upload-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #64748b;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 18px;
+}
+
+/* RECENT DOCUMENT CHECKS CARD */
+.idv-recent-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.idv-card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.idv-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f2b48;
+  margin: 0;
+}
+
+.idv-card-link {
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.idv-card-link:hover {
+  text-decoration: underline;
+}
+
+/* TABLE STYLES */
+.idv-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.idv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.idv-table th {
+  padding: 10px 14px;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.idv-table td {
+  padding: 14px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.idv-table tr:hover td {
+  background: #f8fafc;
+}
+
+.idv-file-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: #0f2b48;
+}
+
+.idv-file-icon {
+  width: 22px;
+  height: 26px;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 4px;
+  color: #dc2626;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.idv-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.idv-badge.warn {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.idv-badge.ok {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.idv-badge.info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.idv-badge.fail {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.idv-view-btn {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.idv-view-btn:hover {
+  background: #dbeafe;
+}
+
+/* RIGHT COLUMN CARDS */
+.idv-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* "WHAT HAPPENS NEXT?" CARD */
+.idv-next-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 24px 24px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.idv-next-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f2b48;
+  margin: 0 0 22px;
+}
+
+.idv-next-header span {
+  color: #2563eb;
+  font-size: 18px;
+}
+
+.idv-process-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  position: relative;
+  align-items: flex-start;
+}
+
+.idv-step-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.idv-step-icon-wrap {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin-bottom: 10px;
+}
+
+.idv-step-icon-wrap.step-1 { background: #eff6ff; color: #2563eb; }
+.idv-step-icon-wrap.step-2 { background: #f0fdf4; color: #16a34a; }
+.idv-step-icon-wrap.step-3 { background: #fff7ed; color: #ea580c; }
+.idv-step-icon-wrap.step-4 { background: #f5f3ff; color: #7c3aed; }
+
+.idv-step-num {
+  position: absolute;
+  top: -4px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  border: 2px solid #ffffff;
+}
+
+.idv-step-num.s-1 { background: #2563eb; }
+.idv-step-num.s-2 { background: #16a34a; }
+.idv-step-num.s-3 { background: #ea580c; }
+.idv-step-num.s-4 { background: #7c3aed; }
+
+.idv-step-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0f2b48;
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+
+.idv-step-desc {
+  font-size: 10.5px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.idv-step-arrow {
+  position: absolute;
+  top: 14px;
+  right: -8px;
+  color: #cbd5e1;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* PROTECT YOUR RECORDS CARD */
+.idv-protect-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.idv-shield-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.idv-protect-copy h3 {
+  margin: 0 0 4px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f2b48;
+}
+
+.idv-protect-copy p {
+  margin: 0;
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.45;
+  max-width: 82%;
+}
+
+.idv-tricolor-accent {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 110px;
+  height: 38px;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* RECENT ACTIVITY CARD */
+.idv-activity-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 24px 24px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.idv-activity-empty {
+  text-align: center;
+  padding: 20px 10px;
+  color: #64748b;
+}
+
+.idv-activity-empty svg {
+  margin-bottom: 12px;
+  color: #94a3b8;
+}
+
+.idv-activity-empty strong {
+  display: block;
+  font-size: 13.5px;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.idv-activity-empty p {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.idv-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.idv-activity-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 4px;
+  border: 0;
+  border-bottom: 1px solid #f1f5f9;
+  background: transparent;
+  color: #0f2b48;
+  text-align: left;
+  cursor: pointer;
+}
+
+.idv-activity-item:hover {
+  background: #f8fafc;
+}
+
+.idv-activity-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #2563eb;
+}
+
+.idv-activity-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.idv-activity-copy strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.idv-activity-copy small {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.idv-locked-message {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px 18px;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 12.5px;
+}
+
+.idv-locked-message strong {
+  font-size: 13px;
+}
+
+/* DETAILS MODAL */
+.idv-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.idv-modal {
+  background: #ffffff;
+  border-radius: 20px;
+  width: min(100%, 680px);
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  padding: 28px 32px;
+}
+
+.idv-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.idv-modal-head h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f2b48;
+}
+
+.idv-modal-close {
+  background: #f1f5f9;
+  border: 0;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #475569;
+  font-size: 16px;
+}
+
+.idv-modal-close:hover {
+  background: #e2e8f0;
+}
+
+.idv-ocr-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.idv-ocr-item small {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.idv-ocr-item strong {
+  font-size: 13.5px;
+  color: #0f2b48;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .idv-grid {
+    grid-template-columns: 1fr;
+  }
+  .idv-process-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .idv-step-arrow {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .idv-nav {
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+  .idv-nav-extra {
+    display: none;
+  }
+  .idv-nav-more {
+    display: block;
+  }
+  .idv-form-fields {
+    grid-template-columns: 1fr;
+  }
+  .idv-synthetic-pill {
+    margin-left: 0;
+  }
+  .idv-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+  }
+  .idv-brand-title {
+    font-size: 14px;
+  }
+  .idv-main {
+    padding: 16px;
+  }
+  .idv-process-row {
+    grid-template-columns: 1fr;
+  }
+}
