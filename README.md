@@ -19,6 +19,16 @@ The backend API must be running on `http://127.0.0.1:8000` before signing in. Op
 
 In VS Code, run the **Run app** task to start both the backend API and frontend together.
 
+### Free static website deployment
+
+The frontend can be deployed for free with GitHub Pages. Push to `main`, then enable
+**Settings → Pages → Source: GitHub Actions** in the repository. The workflow publishes the
+site at `https://panbhuarasane-a.github.io/aicte_sih_fdr/`.
+
+This static deployment does not include the FastAPI backend or PostgreSQL database, so login,
+uploads, and API-backed workflows are unavailable there. Use the local backend instructions
+above for the complete application.
+
 ### Commands
 
 | Command | Purpose |
