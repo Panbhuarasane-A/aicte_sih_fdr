@@ -297,7 +297,7 @@ export default function Verify() {
   return (
     <div className="tv-page">
       <header className="tv-header">
-        <img className="tv-banner" src="/aicte-tricolor-heritage-header.png" alt="AICTE — Technical Education for a Stronger India" />
+        <img className="tv-banner" src={`${import.meta.env.BASE_URL}aicte-tricolor-heritage-header.png`} alt="AICTE — Technical Education for a Stronger India" />
         <div className="tv-header-actions">
           <NotificationButton className="tv-notification" />
           <div className="tv-profile-wrap">

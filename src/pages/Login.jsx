@@ -53,7 +53,7 @@ export default function Login() {
       <section className="login-card">
         <div className="login-panel">
           <Link className="login-brand login-motion" to="/login" aria-label="AICTE FDR Portal sign in">
-            <img className="login-brand-logo" src="/india-gov-portal.png" alt="" />
+            <img className="login-brand-logo" src={`${import.meta.env.BASE_URL}india-gov-portal.png`} alt="" />
             <span><strong>AICTE</strong><small>FDR PORTAL</small></span>
           </Link>
           <p className="login-kicker login-motion">SECURE PORTAL ACCESS</p>
@@ -160,7 +160,7 @@ export default function Login() {
           </p>
         </div>
         <div className="login-illustration login-motion">
-          <img src="/aicte-login-banner.png" alt="AICTE and Government of India emblem over the Parliament and India Gate, framed by the Indian tricolour" />
+          <img src={`${import.meta.env.BASE_URL}aicte-login-banner.png`} alt="AICTE and Government of India emblem over the Parliament and India Gate, framed by the Indian tricolour" />
         </div>
       </section>
     </main>

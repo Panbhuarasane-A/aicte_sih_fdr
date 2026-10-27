@@ -134,7 +134,7 @@ export default function OfficerCommandCentre({ isPreview = false }) {
       <header className="occ-header">
         <img
           className="occ-header-banner"
-          src="/aicte-tricolor-heritage-header.png"
+          src={`${import.meta.env.BASE_URL}aicte-tricolor-heritage-header.png`}
           alt="AICTE — Technical Education for a Stronger India"
         />
 

@@ -324,7 +324,7 @@ export default function Audit() {
   return (
     <div className="ar-page">
       <header className="ar-header">
-        <img className="ar-banner" src="/aicte-tricolor-heritage-header.png" alt="AICTE — Technical Education for a Stronger India" />
+        <img className="ar-banner" src={`${import.meta.env.BASE_URL}aicte-tricolor-heritage-header.png`} alt="AICTE — Technical Education for a Stronger India" />
         <div className="ar-header-actions">
           <NotificationButton className="ar-notification" />
           <div className="ar-profile-wrap">

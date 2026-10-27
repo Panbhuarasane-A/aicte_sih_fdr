@@ -229,7 +229,7 @@ export default function NotificationCenter() {
   return (
     <div className="nc-page">
       <header className="nc-header">
-        <img className="nc-banner" src="/aicte-tricolor-heritage-header.png" alt="AICTE — Technical Education for a Stronger India" />
+        <img className="nc-banner" src={`${import.meta.env.BASE_URL}aicte-tricolor-heritage-header.png`} alt="AICTE — Technical Education for a Stronger India" />
         <div className="nc-header-actions">
           <NotificationButton className="nc-bell" />
           <div className="nc-profile-wrap">

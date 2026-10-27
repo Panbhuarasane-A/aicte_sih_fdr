@@ -90,7 +90,7 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
       <header className="ipc-header">
         <img
           className="ipc-header-banner"
-          src="/aicte-tricolor-heritage-header.png"
+          src={`${import.meta.env.BASE_URL}aicte-tricolor-heritage-header.png`}
           alt="AICTE — Technical Education for a Stronger India"
         />
 
@@ -532,7 +532,7 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
 
               <div className="ipc-help-card">
                 <img
-                  src="/aicte-login-banner.png"
+                  src={`${import.meta.env.BASE_URL}aicte-login-banner.png`}
                   alt="Government of India & Parliament"
                   className="ipc-help-banner-img"
                 />

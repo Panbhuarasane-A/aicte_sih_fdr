@@ -215,7 +215,7 @@ function InstitutionDocuments() {
         {/* Subtle decorative heritage tricolour image banner */}
         <div
           className="idv-header-banner-bg"
-          style={{ backgroundImage: `url('/aicte-tricolor-heritage-header.png')` }}
+          style={{ backgroundImage: `url('${import.meta.env.BASE_URL}aicte-tricolor-heritage-header.png')` }}
           aria-hidden="true"
         />
 

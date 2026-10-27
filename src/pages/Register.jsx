@@ -5,7 +5,7 @@ export default function Register() {
   return (
     <main className="auth-page auth-page--wide">
       <div className="auth-brand">
-        <img className="auth-gov-logo" src="/india-gov-portal.png" alt="National Portal of India emblem and wordmark" />
+        <img className="auth-gov-logo" src={`${import.meta.env.BASE_URL}india-gov-portal.png`} alt="National Portal of India emblem and wordmark" />
         <span><strong>AICTE</strong><small>INSTITUTION REGISTRATION</small></span>
       </div>
       <section className="auth-card register-card" aria-labelledby="register-title">

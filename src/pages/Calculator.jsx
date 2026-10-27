@@ -307,7 +307,7 @@ export default function Calculator() {
   return (
     <div className="fdr-page">
       <header className="fdr-header">
-        <img className="fdr-banner" src="/aicte-tricolor-heritage-header.png" alt="AICTE — Technical Education for a Stronger India" />
+        <img className="fdr-banner" src={`${import.meta.env.BASE_URL}aicte-tricolor-heritage-header.png`} alt="AICTE — Technical Education for a Stronger India" />
         <div className="fdr-header-actions">
           <NotificationButton className="fdr-notification" />
           <div className="fdr-profile-wrap">

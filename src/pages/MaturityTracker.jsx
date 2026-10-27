@@ -221,7 +221,7 @@ export default function MaturityTracker() {
   return (
     <div className="mt-page">
       <header className="mt-header">
-        <img className="mt-banner" src="/aicte-tricolor-heritage-header.png" alt="AICTE — Technical Education for a Stronger India" />
+        <img className="mt-banner" src={`${import.meta.env.BASE_URL}aicte-tricolor-heritage-header.png`} alt="AICTE — Technical Education for a Stronger India" />
         <div className="mt-header-actions">
           <NotificationButton className="mt-notification" />
           <div className="mt-profile-wrap">

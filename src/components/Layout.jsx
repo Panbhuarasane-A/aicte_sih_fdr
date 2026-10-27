@@ -37,7 +37,7 @@ export default function Layout() {
       <header className="site-header">
         <div className="container header-row">
           <Link to="/dashboard" className="brand">
-            <img className="portal-logo" src="/india-gov-portal.png" alt="National Portal of India" />
+            <img className="portal-logo" src={`${import.meta.env.BASE_URL}india-gov-portal.png`} alt="National Portal of India" />
             <span>
               <strong>Security Deposit / FDR Management Portal</strong>
               <small>All India Council for Technical Education · Regulation Bureau</small>

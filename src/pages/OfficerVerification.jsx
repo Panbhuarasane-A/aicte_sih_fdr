@@ -165,7 +165,7 @@ export default function OfficerVerification() {
       <header className="ov-header">
         <img
           className="ov-header-banner"
-          src="/aicte-tricolor-heritage-header.png"
+          src={`${import.meta.env.BASE_URL}aicte-tricolor-heritage-header.png`}
           alt="AICTE — Technical Education for a Stronger India"
         />
         <div className="ov-header-actions">

@@ -286,7 +286,7 @@ export default function InstitutionAnnouncements() {
   return (
     <div className="ia-page">
       <header className="ia-header">
-        <img src="/aicte-tricolor-heritage-header.png" alt="AICTE — Technical Education for a Stronger India" />
+        <img src={`${import.meta.env.BASE_URL}aicte-tricolor-heritage-header.png`} alt="AICTE — Technical Education for a Stronger India" />
         <div className="ia-header-actions">
           <NotificationButton className="ia-bell" />
           <Link to="/dashboard" className="ia-profile">{isInstitution ? (user?.institution_name || user?.name || 'Institution Portal') : (user?.name || 'AICTE Officer')} <span>⌄</span></Link>

@@ -245,7 +245,7 @@ export default function ReleaseRequests() {
   return (
     <div className="rr-page">
       <header className="rr-header">
-        <img className="rr-banner" src="/aicte-tricolor-heritage-header.png" alt="AICTE — Technical Education for a Stronger India" />
+        <img className="rr-banner" src={`${import.meta.env.BASE_URL}aicte-tricolor-heritage-header.png`} alt="AICTE — Technical Education for a Stronger India" />
         <div className="rr-header-actions">
           <NotificationButton className="rr-notification" />
           <div className="rr-profile-wrap">
