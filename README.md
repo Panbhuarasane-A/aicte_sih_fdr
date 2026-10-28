@@ -39,8 +39,8 @@ free full-stack deployment:
    connection string and set `CORS_ORIGINS` to the final Vercel URL.
 3. Wait for the Render service to become healthy and copy its URL, such as
    `https://aicte-fdr-api.onrender.com`.
-4. On Vercel, import this repository and add `VITE_API_URL` with the Render service URL
-   (without a trailing slash), then deploy.
+4. On Vercel, import this repository and deploy. Production builds default to the configured
+   Render service URL; set `VITE_API_URL` to override it (without a trailing slash).
 
 Render's free service sleeps when idle and may take up to a minute to wake. Never commit
 database URLs, JWT secrets, or provider tokens.
