@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { usePortal } from '../context/PortalContext.jsx';
-import { claimsRepo, dashboardRepo } from '../data/repositories.js';
+import { claimsRepo, dashboardRepo, fdrRepo } from '../data/repositories.js';
 import PortalSidebar from './PortalSidebar.jsx';
 import NotificationButton from './NotificationButton.jsx';
 import '../styles/institution-portal.css';
@@ -59,6 +59,24 @@ const SAMPLE_TRANSACTIONS = [
   }
 ];
 
+function formatAmount(value) {
+  return `₹ ${Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+}
+
+function claimDisplay(claim) {
+  const classification = claim.match_result?.classification;
+  const isExact = classification === 'EXACT_MATCH';
+  const isPending = claim.officer_decision === 'PENDING';
+  return {
+    utr: claim.utr || claim.id,
+    amount: formatAmount(claim.amount),
+    issue: isExact ? 'Verification pending' : classification?.replaceAll('_', ' ') || 'Verification pending',
+    status: isExact && !isPending ? 'Verified' : isExact ? 'Needs review' : 'Attention required',
+    statusClass: isExact ? 'is-matched' : 'is-mismatch',
+    details: claim.match_result?.evidence_lines?.join(' ') || claim.remarks || 'Review the available claim and statement evidence.',
+  };
+}
+
 export default function InstitutionCommandCentre({ isPreview = false }) {
   const { user, signOut } = usePortal();
   const navigate = useNavigate();
@@ -70,19 +88,29 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
   // Live stats from backend
   const [liveKpis, setLiveKpis] = useState(null);
   const [liveClaims, setLiveClaims] = useState([]);
+  const [liveInstruments, setLiveInstruments] = useState([]);
 
   useEffect(() => {
     Promise.all([
       dashboardRepo.getSummary().catch(() => null),
-      claimsRepo.list().catch(() => [])
-    ]).then(([kpiData, claimsData]) => {
+      claimsRepo.list().catch(() => []),
+      fdrRepo.list().catch(() => [])
+    ]).then(([kpiData, claimsData, instrumentData]) => {
       if (kpiData) setLiveKpis(kpiData);
-      if (claimsData && claimsData.length) setLiveClaims(claimsData);
+      setLiveClaims(Array.isArray(claimsData) ? claimsData : []);
+      setLiveInstruments(Array.isArray(instrumentData) ? instrumentData : []);
     });
   }, []);
 
   const institutionName = user?.institution_name || user?.name || 'ABC Engineering College';
   const institutionCode = user?.institution_id || 'INST-2026-004';
+  const instrumentValue = liveKpis?.total_deposit_value ?? liveInstruments.reduce((total, instrument) => total + Number(instrument.amount || 0), 0);
+  const verifiedClaims = liveClaims.filter((claim) => claim.match_result?.classification === 'EXACT_MATCH' && claim.officer_decision !== 'PENDING').length;
+  const totalFdrs = liveInstruments.length;
+  const activeFdrs = liveInstruments.filter((instrument) => ['active', 'expiring'].includes(instrument.status)).length;
+  const approachingFdrs = liveInstruments.filter((instrument) => instrument.status === 'expiring' || (instrument.days_to_maturity >= 0 && instrument.days_to_maturity <= 30)).length;
+  const expiredFdrs = liveInstruments.filter((instrument) => instrument.status === 'matured' || (instrument.days_to_maturity ?? 0) < 0).length;
+  const recentClaims = liveClaims.slice(0, 5).map(claimDisplay);
 
   return (
     <div className="ipc-container">
@@ -188,8 +216,8 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                 </div>
                 <div>
                   <p className="ipc-metric-label">Total Deposits / FDRs</p>
-                  <p className="ipc-metric-number">₹ 2,48,75,000</p>
-                  <p className="ipc-metric-sub">↑ 12% from last quarter</p>
+                  <p className="ipc-metric-number">{formatAmount(instrumentValue)}</p>
+                  <p className="ipc-metric-sub">{totalFdrs} registered FDR{totalFdrs === 1 ? '' : 's'}</p>
                 </div>
               </div>
               <span className="ipc-metric-arrow">→</span>
@@ -205,13 +233,13 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                 </div>
                 <div>
                   <p className="ipc-metric-label">Verified Transactions</p>
-                  <p className="ipc-metric-number">24</p>
+                  <p className="ipc-metric-number">{verifiedClaims}</p>
                   <div className="ipc-progress-mini">
-                    <span className="ipc-metric-sub">↑ 8% from last month</span>
+                    <span className="ipc-metric-sub">{liveClaims.length} total claim{liveClaims.length === 1 ? '' : 's'}</span>
                     <div className="ipc-progress-mini-bar">
-                      <div className="ipc-progress-mini-fill" style={{ width: '80%' }} />
+                      <div className="ipc-progress-mini-fill" style={{ width: `${liveKpis?.record_accuracy_pct ?? 0}%` }} />
                     </div>
-                    <span className="ipc-progress-mini-text">80%</span>
+                    <span className="ipc-progress-mini-text">{liveKpis?.record_accuracy_pct ?? 0}%</span>
                   </div>
                 </div>
               </div>
@@ -229,8 +257,8 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                 </div>
                 <div>
                   <p className="ipc-metric-label">Issues to Resolve</p>
-                  <p className="ipc-metric-number">5</p>
-                  <p className="ipc-metric-sub">↓ 40% from last month</p>
+                  <p className="ipc-metric-number">{liveKpis?.flagged_claims ?? 0}</p>
+                  <p className="ipc-metric-sub">Flagged claims requiring review</p>
                 </div>
               </div>
               <span className="ipc-metric-arrow">→</span>
@@ -248,7 +276,7 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                 </div>
                 <div>
                   <p className="ipc-metric-label">Upcoming Maturities</p>
-                  <p className="ipc-metric-number">3</p>
+                  <p className="ipc-metric-number">{liveKpis?.expiring_soon_30_days ?? approachingFdrs}</p>
                   <p className="ipc-metric-sub">Next 30 days</p>
                 </div>
               </div>
@@ -281,11 +309,12 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {SAMPLE_TRANSACTIONS.map((tx, idx) => (
+                    {recentClaims.length === 0 && <tr><td colSpan="6" style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>No claims recorded for this institution.</td></tr>}
+                    {recentClaims.map((tx, idx) => (
                       <tr key={idx}>
                         <td><strong>{institutionName}</strong><br /><small>{tx.utr}</small></td>
                         <td>Security Deposit</td>
-                        <td>{tx.status === 'Amount Mismatch' ? 'Amount mismatch' : 'Verification pending'}</td>
+                        <td>{tx.issue}</td>
                         <td style={{ fontWeight: 700 }}>{tx.amount}</td>
                         <td>
                           <span className={`ipc-status-pill ${tx.statusClass}`}>
@@ -318,11 +347,11 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                       <div className="ipc-fdr-dot is-blue">🏦</div>
                       <div>
                         <span className="ipc-fdr-label">Total FDRs</span>
-                        <div className="ipc-fdr-count">3</div>
+                        <div className="ipc-fdr-count">{totalFdrs}</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span className="ipc-fdr-amount">₹ 1,50,00,000</span>
+                      <span className="ipc-fdr-amount">{formatAmount(instrumentValue)}</span>
                       <span style={{ color: '#94a3b8' }}>›</span>
                     </div>
                   </div>
@@ -332,11 +361,11 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                       <div className="ipc-fdr-dot is-green">✓</div>
                       <div>
                         <span className="ipc-fdr-label">Active</span>
-                        <div className="ipc-fdr-count">2</div>
+                        <div className="ipc-fdr-count">{activeFdrs}</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span className="ipc-fdr-amount">₹ 1,10,00,000</span>
+                      <span className="ipc-fdr-amount">{formatAmount(liveInstruments.filter((instrument) => ['active', 'expiring'].includes(instrument.status)).reduce((total, instrument) => total + Number(instrument.amount || 0), 0))}</span>
                       <span style={{ color: '#94a3b8' }}>›</span>
                     </div>
                   </div>
@@ -346,11 +375,11 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                       <div className="ipc-fdr-dot is-orange">📅</div>
                       <div>
                         <span className="ipc-fdr-label">Maturing in 30 Days</span>
-                        <div className="ipc-fdr-count">1</div>
+                        <div className="ipc-fdr-count">{approachingFdrs}</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span className="ipc-fdr-amount">₹ 40,00,000</span>
+                      <span className="ipc-fdr-amount">{formatAmount(liveInstruments.filter((instrument) => instrument.status === 'expiring' || (instrument.days_to_maturity >= 0 && instrument.days_to_maturity <= 30)).reduce((total, instrument) => total + Number(instrument.amount || 0), 0))}</span>
                       <span style={{ color: '#94a3b8' }}>›</span>
                     </div>
                   </div>
@@ -360,11 +389,11 @@ export default function InstitutionCommandCentre({ isPreview = false }) {
                       <div className="ipc-fdr-dot is-red">⌛</div>
                       <div>
                         <span className="ipc-fdr-label">Expired</span>
-                        <div className="ipc-fdr-count">0</div>
+                        <div className="ipc-fdr-count">{expiredFdrs}</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span className="ipc-fdr-amount">₹ 0</span>
+                      <span className="ipc-fdr-amount">{formatAmount(liveInstruments.filter((instrument) => instrument.status === 'matured' || (instrument.days_to_maturity ?? 0) < 0).reduce((total, instrument) => total + Number(instrument.amount || 0), 0))}</span>
                       <span style={{ color: '#94a3b8' }}>›</span>
                     </div>
                   </div>
